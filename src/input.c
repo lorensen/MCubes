@@ -360,7 +360,7 @@ cubes_9800_read_slice (slice, size, file_name)
 	int	i;
 	short	*line;
 	short	*line_table;
-#ifndef vms | stellar | hp
+#ifndef vms | stellar | hpux
 	PIXEL	data[256];
 	PIXEL	*data_end = data + 256;
 	PIXEL	*data_ptr = data + 256;
@@ -368,7 +368,7 @@ cubes_9800_read_slice (slice, size, file_name)
 #else
 	PIXEL	*data_ptr;
 #endif
-#if !(vms || stellar || hp)
+#if !(vms || stellar || hpux)
 	/*
 	 * zero memory for image
 	 */
@@ -470,7 +470,7 @@ cubes_9800_read_compressed_slice (slice, size, file_name)
 	int	i;
 	short	*line;
 	short	*line_table;
-#ifndef vms | stellar | hp
+#ifndef vms | stellar | hpux
 	char	data[512];
 	char	*data_end = data + 512;
 	char	*data_ptr = data + 512;
@@ -480,7 +480,7 @@ cubes_9800_read_compressed_slice (slice, size, file_name)
 #else
 	PIXEL	*data_ptr;
 #endif
-#if !(vms || stellar || hp)
+#if !(vms || stellar || hpux)
 	/*
 	 * zero memory for image
 	 */
@@ -692,7 +692,7 @@ cubes_8800_read_slice (slice, size, file_name, number)
 	PIXEL	*data_ptr = data + 256;
 	FILE	*file_ptr;
 
-#if !(vms || stellar || hp)
+#if !(vms || stellar || hpux)
 	/*
 	 * zero memory for image
 	 */
