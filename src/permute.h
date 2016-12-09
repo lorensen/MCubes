@@ -5,7 +5,7 @@ typedef struct {
 	int     number;
 	char    binary[8];
 	char    labels[9];
-	int     case_edges[41];
+	int     case_edges[64];
 } CASES;
 
 CASES cases[MAX_CASES];

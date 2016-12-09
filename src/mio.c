@@ -52,9 +52,12 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/stat.h>
-#ifdef mips
+
+/*
+#if defined(4d)
 #include <sys/nami.h>
 #endif
+*/
 
 /*
  * Macros:
@@ -146,9 +149,6 @@ static PIXEL max_pix = 0;
 extern char *strrchr ();
 extern char *strcpy ();
 extern char *malloc ();
-#ifndef mips
-extern char *sprintf ();
-#endif
 
 /***************************************************
 	Public routines
@@ -367,7 +367,7 @@ noh2d_read_image (file, x_size, y_size, slice)
 	int	size = x_size * y_size;
 
 	status = fread ((char *) slice, sizeof (PIXEL), size, file->stream);
-#if !defined(vms)
+#if !defined(vms) && !defined(ultrix)
 	swab ((char *) slice, (char *) slice, size * sizeof (PIXEL));
 #endif
 	return (status);
@@ -382,7 +382,7 @@ noh2d_write_image (file, x_size, y_size, slice, header)
 {
 	int	size = x_size * y_size;
 
-#if !defined(vms)
+#if !defined(vms) && !defined(ultrix)
 	swab ((char *) slice, (char *) slice, size * sizeof (PIXEL));
 #endif
 	return (fwrite ((char *) slice, sizeof (PIXEL), size, file->stream));
@@ -411,7 +411,7 @@ signa_read_image (file, x_size, y_size, image)
 
 	myseek (file, (long) (28 * 512), 0);
 	status = fread ((char *) image, sizeof (PIXEL), size, file->stream);
-#if defined(vms)
+#if defined(vms) || defined(ultrix)
 	swab ((char *) image, (char *) image, size * sizeof (PIXEL));
 #endif
 	return (status);
@@ -425,7 +425,7 @@ signa_write_image (file, x_size, y_size, image, header)
 {
 	int	size = x_size * y_size;
 
-#if defined(vms)
+#if defined(vms) || defined(ultrix)
 	swab ((char *) image, (char *) image, size * sizeof (PIXEL));
 #endif
 	if (header != NULL) fwrite ((char *) header, 1, 28 * 512, file->stream);
@@ -457,7 +457,7 @@ xim_read_image (file, x_size, y_size, image)
 
 	myseek (file, (long) 512, 0);
 	status = fread (image, bytes, 1, file->stream);
-#if !defined(vms)
+#if !defined(vms) && !defined(ultrix)
 	swab ((char *) image, (char *) image, bytes);
 #endif
 	return (status);
@@ -473,7 +473,7 @@ xim_write_image (file, x_size, y_size, image, header)
 	char	header_temp[512];
 	int	size = x_size * y_size;
 
-#if !defined(vms)
+#if !defined(vms) && !defined(ultrix)
 	swab ((char *) image, (char *) image, size * sizeof (PIXEL));
 #endif
 	if (header != NULL) fwrite ((char *) header, 1, 512, file->stream);
@@ -491,6 +491,7 @@ ct9800_build_filename (prefix, number)
 {
 	char	*suffix;
 	char	local[MAXPATHLEN];
+	struct stat buf;
 
 	/*
 	 * make a local copy of file prefix
@@ -521,6 +522,17 @@ ct9800_build_filename (prefix, number)
 				       ('a' + (number / 10 - 10)),
 			number % 10,
 			suffix);
+
+	/* see if file exists, otherwise try .YP for suffix */
+
+	if (stat (line, &buf) == -1) {
+		sprintf (line, "%s%c%01d.%s",
+				local,
+				number < 100 ? ('0' + number / 10) :
+					       ('a' + (number / 10 - 10)),
+				number % 10,
+				"YP");
+	}
 
 	return (line);
 }
@@ -581,7 +593,7 @@ ct9800_read_image (file, x_size, y_size, image)
 			if (data_ptr >= data_end) {
 				status = fread ((char *) data, sizeof (PIXEL), 256, file->stream);
 				if (status != 256) printf ("bad status: %d\n", status);
-#if defined(vms)
+#if defined(vms) || defined(ultrix)
 				swab ((char *) data, (char *) data, 256 * sizeof (PIXEL));
 #endif
 				data_ptr = data;
@@ -643,7 +655,7 @@ ct9800_write_image (file, x_size, y_size, image, header)
 		end = start + (*line * 2);
 		for (; start < end; start++, data_ptr++) {
 			if (data_ptr >= data_end) {
-#if defined(vms)
+#if defined(vms) || defined(ultrix)
 				swab ((char *) data, (char *) data, 256 * sizeof (PIXEL));
 #endif
 				fwrite ((char *) data, sizeof (PIXEL), 256, file->stream);
@@ -654,7 +666,7 @@ ct9800_write_image (file, x_size, y_size, image, header)
 	}
 
 	if (data_ptr != data) {
-#if defined(vms)
+#if defined(vms) || defined(ultrix)
 		swab ((char *) data, (char *) data, (data_ptr - data) * sizeof (PIXEL));
 #endif
 		fwrite ((char *) data, sizeof (PIXEL), data_ptr - data, file->stream);
@@ -681,7 +693,7 @@ static short *ct9800_build_line_table (file, size)
 		perror ("ct9800_build_line_table");
 		return ((short *) NULL);
 	}
-#if defined(vms)
+#if defined(vms) || defined(ultrix)
 	swab ((char *) map, (char *) map, size * sizeof (short));
 #endif
 

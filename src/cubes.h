@@ -6,7 +6,7 @@
 
  * module:      cubes.h
 
- * version:     1.4 03/21/89 07:10:41
+ * version:     1.5 02/18/92 08:23:52
 
  * facility:
 		Marching Cubes
@@ -64,7 +64,7 @@
 typedef int EDGE_LIST;
 
 typedef struct {
-       EDGE_LIST edges[41];
+       EDGE_LIST edges[65];
 } POLY_CASES;
  
 typedef short PIXEL;

@@ -40,14 +40,18 @@ static char    *sccs_id = "@(#)timer.c	1.1";
 #if defined(stellar)
 #include "times.h"
 #endif
-#if defined(mips)
+#if defined(mips) && !defined(ultrix)
 #include <sys/times.h>
 #endif
-#if defined(stellar) || defined(mips)
+#if defined(stellar) || defined(mips) && !defined(ultrix)
 #define TICKS 100
 #else
 #include <sys/times.h>
 #define TICKS 60
+#endif
+#ifdef rs6000
+#undef TICKS
+#define TICKS 100
 #endif
 
 /*

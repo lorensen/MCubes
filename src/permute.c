@@ -157,7 +157,7 @@ permute_it (a_case, operator)
 	 * permute edges to form new edge list
 	 */
 
-	for (i = 0; i < 40; i++) {
+	for (i = 0; i < 64; i++) {
 		temp_case.case_edges[i] = operator->edges[a_case->case_edges[i]];
 	}
 
@@ -181,13 +181,11 @@ output_case (a_case)
 		if (a_case->binary[i] == '1') number += (1 << (7 - i));
 	}
 
-	a_case->number = number;
-
-	printf ("%3d: %s ", a_case->number, a_case->labels);
+	printf ("%3d %3d: %s ", number, a_case->number, a_case->labels);
 
 	for (i = 0; i < 8; i++) printf ("%c", a_case->binary[i]);
 
-	for (i = 0; i < 40; i++) {
+	for (i = 0; i < 64; i++) {
 		printf ("%3d", a_case->case_edges[i]);
 	}
 

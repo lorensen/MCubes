@@ -6,7 +6,7 @@
 
  * module:      cubes.c
 
- * version:     1.8 07/10/90 15:36:46
+ * version:     1.9 02/18/92 08:21:05
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -56,7 +56,7 @@ static	char	file_name[80];
 static VERTEX	output_vertex;
 static	int	number_edges = 0;
 #ifndef lint
-static	char    *sccs_id = "@(#)cubes.c	1.8";
+static	char    *sccs_id = "@(#)cubes.c	1.9";
 #endif
 static	int *save_ptr;
 static	int	file_number = 0;
@@ -84,7 +84,7 @@ main (argc, argv)
 	 * advertise a little
 	 */
 
-	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.8", "07/10/90");
+	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.9", "02/18/92");
 
 	/*
 	 * user input can come from three sources
@@ -153,11 +153,17 @@ main (argc, argv)
 
 	cubes_summary ();
 
+	/* output histogram */
+
+	cubes_histogram ();
+
 	/*
 	 * close vertex file
 	 */
 
 	fclose (vertex_file);
+
+	exit (0);
 }
 
 
@@ -190,6 +196,10 @@ main (argc, argv)
 cubes_init ()
 
 {
+
+	/* get memory for histogram */
+
+	histogram = (int *) calloc (256, sizeof (int));
 
 	/*
 	 * get memory for survivors
@@ -475,10 +485,11 @@ register EDGE_LIST *edge;
 	     solid_ptr = solid_ptr->solid_next) {
 		index = (*solid_ptr->solid_index) (solid_ptr->solid_object, slice_1, slice_2, slice_3);
 		if (index == OUTSIDE) {
+			(*histogram)++;
 			survivor = survivors;
 			return;
 		}
-		if (index == INSIDE) continue;
+		if (index == INSIDE) {(*(histogram + 255))++; continue;}
 		survivor->solid = solid_ptr;
 		survivor->index = index;
 		survivor++;
@@ -503,6 +514,9 @@ register EDGE_LIST *edge;
 		 * access the proper set of triangles for this case
 		 */
 
+		/* bump histogram for this case */
+
+		(*(histogram + survivor->index))++;
 		poly_case = poly_cases + survivor->index;
 		edge = poly_case->edges;
 		vertex_ptr = survivor->vertices;
@@ -752,6 +766,32 @@ cubes_summary ()
 			break;
 		}
 	}
+}
+
+cubes_histogram ()
+{
+	int	i;
+	FILE	*histogram_ptr;
+	char	histogram_file[80];
+
+	/* open histogram file */
+
+	sprintf (histogram_file, "%s.histogram", output_prefix);
+	histogram_ptr = fopen (histogram_file, "w");
+	if (histogram_file == NULL) {
+		fprintf (stderr, "cubes: cannot open histogram file %s\n",
+			histogram_file);
+		perror ("cubes");
+		return;
+	}
+
+	/* write histogram */
+
+	for (i = 0; i < 256; i++) {
+		fprintf (histogram_ptr, "%3d: %d\n", i, *(histogram + i));
+	}
+
+	fclose (histogram_ptr);
 }
 
 

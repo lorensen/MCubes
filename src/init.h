@@ -6,7 +6,7 @@
 
  * module:      init.h
 
- * version:     1.3 07/10/90 15:36:02
+ * version:     1.4 02/18/92 08:21:45
 
  * facility:
 		Initializations for Marching Cubes externals
@@ -57,6 +57,7 @@ float	aspect_xy_to_z;
 int     line;
 int     pixel;
 int     slice;
+int *histogram;
 
 static float x_min = 1.e30;
 static float x_max = -1.e30;
@@ -71,7 +72,7 @@ static float z_max = -1.e30;
  * command line and command file options:
  */
 
-char	command_file[80] = '\0';/* -command=	*/
+char	command_file[80] = {'\0'};/* -command=	*/
 char    output_prefix[80];	/* -output=	*/
 char    slice_filename[80];	/* -input=	*/
 float   value = .5;		/* -value=	*/

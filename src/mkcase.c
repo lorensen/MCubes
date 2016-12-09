@@ -11,6 +11,7 @@ main (argc, argv)
 {
 	int     last = -1;
 	int number;
+	int	original_case;
 	int edge;
 	char    line[255];
 
@@ -23,11 +24,11 @@ main (argc, argv)
 	printf (" \n");
 	printf ("typedef int EDGE_LIST;\n");
 	printf ("typedef struct {\n");
-	printf ("       EDGE_LIST edges[41];\n");
+	printf ("       EDGE_LIST edges[65];\n");
 	printf ("} POLY_CASES;\n");
 	printf (" \n");
 	printf ("POLY_CASES poly_cases[] = {\n");
-	printf ("{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},\n");
+	printf ("{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},\n");
 
 	while (fscanf (stdin, "%d", &number) != EOF) {
 
@@ -38,6 +39,8 @@ main (argc, argv)
 
 		last = number;
 		printf ("{");
+
+		fscanf (stdin, "%d", &original_case);
 		fscanf (stdin, "%*[^01]");
 		fscanf (stdin, "%*d%*d");
 		for (; fgetc (stdin) != '\n';) {
@@ -46,9 +49,9 @@ main (argc, argv)
 		    printf ("%2d, ", edge);
 		}
 
-		printf ("0}, /* %d */\n", number);
+		printf ("0}, /* %d %d */\n", number, original_case);
 	}
-	printf ("{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};\n");
+	printf ("{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};\n");
 	exit (0);
 }
 
