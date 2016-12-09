@@ -6,7 +6,7 @@
 
  * module:      cubes.c
 
- * version:     1.4 12/29/88 11:05:01
+ * version:     1.5 03/21/89 07:11:45
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -56,7 +56,7 @@ static	char	file_name[80];
 static VERTEX	output_vertex;
 static	int	number_edges = 0;
 #ifndef lint
-static	char    *sccs_id = "@(#)cubes.c	1.4";
+static	char    *sccs_id = "@(#)cubes.c	1.5";
 #endif
 static	int *save_ptr;
 static	int	file_number = 0;
@@ -84,7 +84,7 @@ main (argc, argv)
 	 * advertise a little
 	 */
 
-	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.4", "12/29/88");
+	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.5", "03/21/89");
 
 	/*
 	 * user input can come from three sources
@@ -116,10 +116,10 @@ main (argc, argv)
 	}
 
 	/*
-	 * open files
+	 * write limits
 	 */
 
-	cubes_open ();
+	cubes_limits ();
 
 	/*
 	 * initialize cpu timer
@@ -138,6 +138,12 @@ main (argc, argv)
 	 */
 
 	cubes_generate ();
+
+	/*
+	 * write range of vertices
+	 */
+
+	cubes_range ();
 
 	/*
 	 * summarize the run, once on standard output, once in .sum file
@@ -300,17 +306,16 @@ register PIXEL *slice_3_ptr;	/* current pointer within slice i + 2	*/
 	if (start_x < 0) start_x = 0;
 	if (start_y < 0) start_y = 0;
 	if (start_slice < 1) start_slice = 1;
+
 	if (end_x > pixels_per_line) end_x = pixels_per_line;
 	if (end_x <= start_x) end_x = pixels_per_line;
+	end_x -= 2;
+
 	if (end_y > lines_per_slice) end_y = lines_per_slice;
 	if (end_y <= start_y) end_y = lines_per_slice;
+	end_y -= 2;
+
 	if (end_slice <= start_slice) end_slice = number_slices;
-
-	/*
-	 * perturb value slightly to avoid degenerate cases
-	 */
-
-/*	value = 1.0001 * value;*/
 
 	/*
 	 * calculate aspect ratio between xy and z
@@ -351,7 +356,7 @@ register PIXEL *slice_3_ptr;	/* current pointer within slice i + 2	*/
 		 */
 
 		for (line = start_y;
-			line < end_y - 2;
+			line < end_y;
 			line ++) {
 
 			/*
@@ -365,8 +370,8 @@ register PIXEL *slice_3_ptr;	/* current pointer within slice i + 2	*/
 			slice_3_ptr = slice_3 + line_offset + start_x;
 
 			for (pixel = start_x;
-				pixel < end_x - 2;
-					pixel ++,
+				pixel < end_x;
+					pixel++,
 	      				slice_0_ptr++,
 					slice_1_ptr++,
 					slice_2_ptr++,
@@ -441,7 +446,7 @@ cubes_triangulate (slice_0, slice_1, slice_2, slice_3)
 	SOLID	*solid_ptr;
 	SOLID	*surviving_solid;
 	SURVIVOR *last_survivor;
-	SURVIVOR *survivor;
+register SURVIVOR *survivor;
 	VERTEX	*vertex_ptr;
 	int	number_survivors;
 	int     index;
@@ -566,24 +571,12 @@ register EDGE_LIST *edge;
  *
  */
 
-cubes_open ()
+cubes_limits ()
 {
 	FILE	*limits_file;
 	float	x_min, x_max;
 	float	y_min, y_max;
 	float	z_min, z_max;
-
-	/*
-	 * open image file if we're in text mode
-	 */
-
-	if (text_mode) {
-		slice_file = fopen (slice_filename, "r");
-		if (slice_file == NULL) {
-			fprintf (stderr, "cubes: cannot open %s as input file.\n", slice_filename);
-			exit (1);
-		}
-	}
 
 	/*
 	 * output limits file with ranges
@@ -610,6 +603,66 @@ cubes_open ()
 	y_max = scale_y * lines_per_slice;
 	z_min = scale_z;
 	z_max = scale_z * number_slices;
+
+	fwrite ((char *) &x_min, sizeof(float), 1, limits_file);
+	fwrite ((char *) &x_max, sizeof(float), 1, limits_file);
+	fwrite ((char *) &y_min, sizeof(float), 1, limits_file);
+	fwrite ((char *) &y_max, sizeof(float), 1, limits_file);
+	fwrite ((char *) &z_min, sizeof(float), 1, limits_file);
+	fwrite ((char *) &z_max, sizeof(float), 1, limits_file);
+	fclose (limits_file);
+}
+
+
+/*++
+ *
+ * routine cubes_range ()
+
+ * functional description:
+	write the actual range of x, y, z in the limits file
+
+ * formal parameters:
+	none
+
+ * implicit inputs:
+	output_prefix  - prefix for output files
+	slice_filename - slice file name
+
+ * implicit outputs:
+	limits_file - file pointer for limits file
+
+ * routine value:
+ * completion codes:
+	error exit if files cannot be opened
+
+ * side effects:
+	none
+
+ *
+ */
+
+cubes_range ()
+{
+	FILE	*limits_file;
+
+	/*
+	 * output limits file with ranges
+	 */
+
+	sprintf (file_name, "%s.lim", output_prefix);
+#ifdef vms
+	limits_file = fopen (file_name, "ab");
+#else
+	limits_file = fopen (file_name, "a");
+#endif
+	if (limits_file == NULL) {
+		fprintf (stderr, "CUBES: cannot open limits file %s\n", file_name);
+		exit (1);
+	}
+	
+	/*
+	 * write x, y, z ranges into limits file
+	 */
 
 	fwrite ((char *) &x_min, sizeof(float), 1, limits_file);
 	fwrite ((char *) &x_max, sizeof(float), 1, limits_file);

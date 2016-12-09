@@ -6,7 +6,7 @@
 
  * module:      cubes.h
 
- * version:     1.3 12/29/88 11:05:37
+ * version:     1.4 03/21/89 07:10:41
 
  * facility:
 		Marching Cubes
@@ -49,6 +49,12 @@
 	output_vertex.x *= scale_x;\
 	output_vertex.y *= scale_y;\
 	output_vertex.z *= scale_z;\
+	if (output_vertex.x < x_min) x_min = output_vertex.x;\
+	if (output_vertex.x > x_max) x_max = output_vertex.x;\
+	if (output_vertex.y < y_min) y_min = output_vertex.y;\
+	if (output_vertex.y > y_max) y_max = output_vertex.y;\
+	if (output_vertex.z < z_min) z_min = output_vertex.z;\
+	if (output_vertex.z > z_max) z_max = output_vertex.z;\
 	fwrite ((char *) &output_vertex, sizeof(output_vertex), 1, vertex_file)
 
 /*

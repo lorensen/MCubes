@@ -6,7 +6,7 @@
 
  * module:      mask.c
 
- * version:     1.2 08/25/88 15:37:13
+ * version:     1.3 03/21/89 07:14:15
 
  * facility:	Marching Cubes triangle generator for sampled data
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)mask.c	1.2";
+static char    *sccs_id = "@(#)mask.c	1.3";
 #endif
 
 /*
@@ -54,37 +54,7 @@ typedef struct {
 /*
  * own storage:
  */
-
-LOCAL VERTEX interpolate_mask_1 ();
-LOCAL VERTEX interpolate_mask_2 ();
-LOCAL VERTEX interpolate_mask_3 ();
-LOCAL VERTEX interpolate_mask_4 ();
-LOCAL VERTEX interpolate_mask_5 ();
-LOCAL VERTEX interpolate_mask_6 ();
-LOCAL VERTEX interpolate_mask_7 ();
-LOCAL VERTEX interpolate_mask_8 ();
-LOCAL VERTEX interpolate_mask_9 ();
-LOCAL VERTEX interpolate_mask_10 ();
-LOCAL VERTEX interpolate_mask_11 ();
-LOCAL VERTEX interpolate_mask_12 ();
-
 LOCAL int cubes_build_mask_index ();
-static EDGE_PROCEDURE interpolate_mask_edges[13] = {
-	0,
-	interpolate_mask_1,
-	interpolate_mask_2,
-	interpolate_mask_3,
-	interpolate_mask_4,
-	interpolate_mask_5,
-	interpolate_mask_6,
-	interpolate_mask_7,
-	interpolate_mask_8,
-	interpolate_mask_9,
-	interpolate_mask_10,
-	interpolate_mask_11,
-	interpolate_mask_12
-};
-
 
 /*
  * external references:
@@ -92,12 +62,6 @@ static EDGE_PROCEDURE interpolate_mask_edges[13] = {
 
 extern SOLID *cubes_new_solid ();
 
-extern FILE *vertex_file;
-extern VERTEX *vertex;
-extern float   scale_x;
-extern float   scale_y;
-extern float   scale_z;
-extern float   aspect_xy_to_z;
 extern int line;
 extern int pixel;
 extern int slice;
@@ -167,7 +131,7 @@ cubes_new_mask (name, sense, pixel_mask)
 	solid->solid_interpolate = NULL;
 
 	/*
-	 * no intersection calcultaion needed
+	 * no intersection calculation needed
 	 */
 
 	solid->solid_intersect = NULL;
@@ -189,290 +153,6 @@ cubes_new_mask (name, sense, pixel_mask)
 		mask->out = 255;
 	}
 }
-
-
-/*++
- *
- * routine interpolate_mask_x (slice_0, slice_1, slice_2, slice_3)
-
- * functional description:
-	interpolates a vertex of a polygon on the edge of a cube
-
-			7
-			|
-		 8***************7
-		**              **
-	   11- * *             * *
-	      *  *   3    12- *  *
-	     *   *-8 |       *   * -6
-	    4***************3    *
-	    *    *          *    *
-	    *    5***************6
-	 4- *   *       |   * -2 *
-	    *  * -9     5   *  *
-	    * *             * * -10
-	    **              **
-	    1***************2
-		    |
-		    1
-
- * formal parameters:
-	mask - pointer to a mask structure
-	slice_0 - pixel 1 on the i - 1 slice
-	slice_1 - pixel 1 on the i slice
-	slice_2 - pixel 2 on the i + 1 slice
-	slice_3 - pixel 1 on the i + 2 slice
-
- * implicit inputs:
-	line  - current line number
-	pixel - current pixel number
-	slice - current slice number
-	value - surface value
-
- * implicit outputs:
-	none
-
- * routine value:
-	none
- *
- */
-
-LOCAL VERTEX interpolate_mask_1 (mask, slice_0, slice_1, slice_2)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-{
-	/*
-	 * find vertex coordinate
-	 */
-
-	vertex->x = pixel + .5;
-	vertex->y = line;
-	vertex->z = slice;
-
-	/*
-	 * normal is just normal of the mask
-	 */
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	/*
-	 * return vertex
-	 */
-
-	return (*vertex);
-
-} /* interpolate_mask_1 */
-	
-LOCAL VERTEX interpolate_mask_2 (mask, slice_0, slice_1, slice_2)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-{
-	vertex->x = pixel + 1;
-	vertex->y = line + .5;
-	vertex->z = slice;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_2 */
-
-LOCAL VERTEX interpolate_mask_3 (mask, slice_0, slice_1, slice_2)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-{
-	vertex->x = pixel + .5;
-	vertex->y = line + 1;
-	vertex->z = slice;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_3 */
-	
-LOCAL VERTEX interpolate_mask_4 (mask, slice_0, slice_1, slice_2)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-{
-	vertex->x = pixel;
-	vertex->y = line + .5;
-	vertex->z = slice;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_4 */
-	
-LOCAL VERTEX interpolate_mask_5 (mask, slice_0, slice_1, slice_2, slice_3)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-    PIXEL *slice_3;
-{
-	vertex->x = pixel + .5;
-	vertex->y = line;
-	vertex->z = slice + 1;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_5 */
-	
-LOCAL VERTEX interpolate_mask_6 (mask, slice_0, slice_1, slice_2, slice_3)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-    PIXEL *slice_3;
-{
-	vertex->x = pixel + 1;
-	vertex->y = line + .5;
-	vertex->z = slice + 1;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_6 */
-	
-LOCAL VERTEX interpolate_mask_7 (mask, slice_0, slice_1, slice_2, slice_3)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-    PIXEL *slice_3;
-{
-	vertex->x = pixel + .5;
-	vertex->y = line + 1;
-	vertex->z = slice;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_7 */
-	
-LOCAL VERTEX interpolate_mask_8 (mask, slice_0, slice_1, slice_2, slice_3)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-    PIXEL *slice_3;
-{
-	vertex->x = pixel;
-	vertex->y = line + .5;
-	vertex->z = slice;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_8 */
-	
-LOCAL VERTEX interpolate_mask_9 (mask, slice_0, slice_1, slice_2, slice_3)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-    PIXEL *slice_3;
-{
-	vertex->x = pixel;
-	vertex->y = line;
-	vertex->z = slice + .5;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_9 */
-	
-LOCAL VERTEX interpolate_mask_10 (mask, slice_0, slice_1, slice_2, slice_3)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-    PIXEL *slice_3;
-{
-	vertex->x = pixel + 1;
-	vertex->y = line;
-	vertex->z = slice + .5;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_10 */
-	
-LOCAL VERTEX interpolate_mask_11 (mask, slice_0, slice_1, slice_2, slice_3)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-    PIXEL *slice_3;
-{
-	vertex->x = pixel;
-	vertex->y = line + 1;
-	vertex->z = slice + .5;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_11 */
-
-LOCAL VERTEX interpolate_mask_12 (mask, slice_0, slice_1, slice_2, slice_3)
-    MASK *mask;
-    PIXEL *slice_0;
-    PIXEL *slice_1;
-    PIXEL *slice_2;
-    PIXEL *slice_3;
-{
-	vertex->x = pixel + 1;
-	vertex->y = line + 1;
-	vertex->z = slice + .5;
-
-	vertex->nx = 0.0;
-	vertex->ny = 0.0;
-	vertex->nz = 0.0;
-
-	return (*vertex);
-
-} /* interpolate_mask_12 */
-	
 
 /*++
  *
@@ -519,28 +199,12 @@ LOCAL VERTEX interpolate_mask_12 (mask, slice_0, slice_1, slice_2, slice_3)
  *
  */
 
-LOCAL int cubes_build_mask_index (mask, slice_1, slice_2)
+LOCAL int cubes_build_mask_index (mask, slice_1)
 
-MASK *mask;
+register MASK *mask;
 register PIXEL *slice_1;
-register PIXEL *slice_2;
 {
-register int mask_index;
-	int next_pixel = 1;
-	int next_line = pixels_per_line;
-	PIXEL	p1, p2, p3, p4, p5, p6, p7, p8;
-	PIXEL pixel_mask;
-
-	/*
-	 * set local variables to corners of cubes
-	 */
-
-	p1 = *slice_1 ;
-
-	pixel_mask = mask->mask_mask;
-	mask_index = mask->out;
-	if (p1 & pixel_mask) mask_index = mask->in;
-
-	return (mask_index);
+	if ((unsigned short) *slice_1 & (unsigned short) mask->mask_mask) return (mask->in);
+	else return (mask->out);
 }
 

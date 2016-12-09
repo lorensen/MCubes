@@ -6,7 +6,7 @@
 
  * module:      plane.c
 
- * version:     1.3 12/29/88 11:05:14
+ * version:     1.4 03/21/89 07:11:11
 
  * facility:	Edge Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)plane.c	1.3";
+static char    *sccs_id = "@(#)plane.c	1.4";
 #endif
 
 /*
@@ -499,8 +499,8 @@ cubes_new_reformat (name, file, x, y, z, nx, ny, nz, min, max)
  */
 
 LOCAL VERTEX interpolate_plane_1 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = 0;
 	offset_2 = 1;
@@ -537,8 +537,8 @@ LOCAL VERTEX interpolate_plane_1 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_1 */
 	
 LOCAL VERTEX interpolate_plane_2 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = 1;
 	offset_2 = pixels_per_line + 1;
@@ -563,8 +563,8 @@ LOCAL VERTEX interpolate_plane_2 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_2 */
 
 LOCAL VERTEX interpolate_plane_3 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = pixels_per_line;
 	offset_2 = pixels_per_line + 1;
@@ -589,8 +589,8 @@ LOCAL VERTEX interpolate_plane_3 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_3 */
 	
 LOCAL VERTEX interpolate_plane_4 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = 0;
 	offset_2 = pixels_per_line;
@@ -615,8 +615,8 @@ LOCAL VERTEX interpolate_plane_4 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_4 */
 	
 LOCAL VERTEX interpolate_plane_5 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = 0;
 	offset_2 = 1;
@@ -641,8 +641,8 @@ LOCAL VERTEX interpolate_plane_5 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_5 */
 	
 LOCAL VERTEX interpolate_plane_6 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = 1;
 	offset_2 = pixels_per_line + 1;
@@ -667,8 +667,8 @@ LOCAL VERTEX interpolate_plane_6 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_6 */
 	
 LOCAL VERTEX interpolate_plane_7 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = pixels_per_line;
 	offset_2 = pixels_per_line + 1;
@@ -693,8 +693,8 @@ LOCAL VERTEX interpolate_plane_7 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_7 */
 	
 LOCAL VERTEX interpolate_plane_8 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = 0;
 	offset_2 = pixels_per_line;
@@ -719,8 +719,8 @@ LOCAL VERTEX interpolate_plane_8 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_8 */
 	
 LOCAL VERTEX interpolate_plane_9 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	p1 = slice_1;
 	p2 = slice_2;
@@ -742,8 +742,8 @@ LOCAL VERTEX interpolate_plane_9 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_9 */
 	
 LOCAL VERTEX interpolate_plane_10 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = 1;
 	offset_2 = 1;
@@ -768,8 +768,8 @@ LOCAL VERTEX interpolate_plane_10 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_10 */
 	
 LOCAL VERTEX interpolate_plane_11 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = pixels_per_line;
 	offset_2 = pixels_per_line;
@@ -795,8 +795,8 @@ LOCAL VERTEX interpolate_plane_11 (plane, slice_0, slice_1, slice_2, slice_3)
 } /* interpolate_plane_11 */
 
 LOCAL VERTEX interpolate_plane_12 (plane, slice_0, slice_1, slice_2, slice_3)
-    PLANE *plane;
-    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
+register    PLANE *plane;
+register    PIXEL *slice_0, *slice_1, *slice_2, *slice_3;
 {
 	offset_1 = pixels_per_line + 1;
 	offset_2 = offset_1;
@@ -869,44 +869,43 @@ LOCAL VERTEX interpolate_plane_12 (plane, slice_0, slice_1, slice_2, slice_3)
 
 LOCAL int cubes_build_plane_index (plane, slice_1, slice_2)
 
-PLANE *plane;
+register PLANE *plane;
 register PIXEL *slice_1;
 register PIXEL *slice_2;
 {
-register int plane_index;
-	float	p1, p2, p3, p4, p5, p6, p7, p8;
+register int plane_index = 0;
+register float	p1, p2, p3, p4, p5, p6, p7, p8;
 
 	/*
 	 * calculate f(x,y,z) at corners of cube
 	 */
 
 	p1 = EVALUATE_PLANE (pixel, line, slice);
-	p2 = p1 + plane->plane_a;
-	p3 = p2 + plane->plane_b;
-	p4 = p1 + plane->plane_b;
-	p5 = p1 + plane->plane_c;
-	p6 = p5 + plane->plane_a;
-	p7 = p6 + plane->plane_b;
-	p8 = p5 + plane->plane_b;
 
-	plane_index = 0;
-	if (p8 <= 0.0) plane_index += 128;
-	if (p7 <= 0.0) plane_index += 64;
-	if (p6 <= 0.0) plane_index += 32;
-	if (p5 <= 0.0) plane_index += 16;
-	if (p4 <= 0.0) plane_index += 8;
-	if (p3 <= 0.0) plane_index += 4;
-	if (p2 <= 0.0) plane_index += 2;
 	if (p1 <= 0.0) plane_index += 1;
+	p2 = p1 + plane->plane_a;
+	if (p2 <= 0.0) plane_index += 2;
+	p3 = p2 + plane->plane_b;
+	if (p3 <= 0.0) plane_index += 4;	
+	p4 = p1 + plane->plane_b;
+	if (p4 <= 0.0) plane_index += 8;
+	p5 = p1 + plane->plane_c;
+	if (p5 <= 0.0) plane_index += 16;
+	p6 = p5 + plane->plane_a;
+	if (p6 <= 0.0) plane_index += 32;
+	p7 = p6 + plane->plane_b;
+	if (p7 <= 0.0) plane_index += 64;
+	p8 = p5 + plane->plane_b;
+	if (p8 <= 0.0) plane_index += 128;
 
 	return (plane_index);
 } /* cubes_build_plane_index */
 
 LOCAL int cubes_plane_inside (plane, vertex)
-    PLANE *plane;
-    VERTEX *vertex;
+register    PLANE *plane;
+register    VERTEX *vertex;
 {
-	float dot;
+register float dot;
 
 	dot =	vertex->x * plane->plane_a +
 		vertex->y * plane->plane_b +
@@ -918,9 +917,9 @@ LOCAL int cubes_plane_inside (plane, vertex)
 } /* cubes_plane_inside */
 
 LOCAL VERTEX *cubes_plane_intersect (plane, vertex_1, vertex_2)
-    VERTEX *vertex_1;
-    VERTEX *vertex_2;
-    PLANE  *plane;
+register    VERTEX *vertex_1;
+register    VERTEX *vertex_2;
+register    PLANE  *plane;
 {
 	float	x, y, z;
 	float	dx, dy, dz;
@@ -931,7 +930,7 @@ LOCAL VERTEX *cubes_plane_intersect (plane, vertex_1, vertex_2)
 	float	v2x = vertex_2->x;
 	float	v2y = vertex_2->y;
 	float	v2z = vertex_2->z;
-	float	t;
+register float	t;
 
 	/*
 	 * calculate delta in x, y, z
@@ -952,7 +951,7 @@ LOCAL VERTEX *cubes_plane_intersect (plane, vertex_1, vertex_2)
 		-plane->plane_c * vertex_1->z;
 
 	t /= (	plane->plane_a * dx
-		+ plane->plane_b* dy
+		+ plane->plane_b * dy
 		+ plane->plane_c * dz);
 
 	/*
@@ -972,7 +971,6 @@ LOCAL VERTEX *cubes_plane_intersect (plane, vertex_1, vertex_2)
 	vertex->nz = vertex_1->nz * one_minus_t + vertex_2->nz * t;
 
 	NORMALIZE_XYZ(vertex);
-/*	(*plane->plane_find_normal) (plane);*/
 
 	vertex->x = x; vertex->y = y; vertex->z = z;
 	return (vertex);
@@ -980,7 +978,7 @@ LOCAL VERTEX *cubes_plane_intersect (plane, vertex_1, vertex_2)
 } /* cubes_plane_intersect */
 
 LOCAL int cubes_plane_normal (plane)
-    PLANE *plane;
+register PLANE *plane;
 {
 	/*
 	 * normal is just normal of the plane
@@ -993,9 +991,9 @@ LOCAL int cubes_plane_normal (plane)
 } /* cubes_plane_normal */
 
 LOCAL int cubes_reformat_normal (plane)
-    PLANE *plane;
+register PLANE *plane;
 {
-	float	attenuate;
+	register float	attenuate;
 
 	/*
 	 * normal is plane normal attenuated by data scale factor

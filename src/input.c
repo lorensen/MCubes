@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 typedef short PIXEL;
 typedef struct {
@@ -27,6 +28,9 @@ static char *cubes_9800_build_filename ();
 static void cubes_9800_read_compressed_slice ();
 static void cubes_9800_read_slice ();
 static short *ct9800_build_line_table ();
+static char *cubes_8800_build_filename ();
+static void cubes_8800_read_slice ();
+static short *ct8800_build_line_table ();
 
 static void (*cubes_read_slice) () = cubes_2d_read_slice;
 static char *(*cubes_build_filename) () = cubes_2d_build_filename;
@@ -93,7 +97,7 @@ static	SLICE	slice_3 = {0, NULL};
 	 * read the file
 	 */
 
-	(*(cubes_read_slice)) (slice->s_ptr, lines_per_slice * pixels_per_line, file_name);
+	(*(cubes_read_slice)) (slice->s_ptr, lines_per_slice * pixels_per_line, file_name, slice_no);
 
 	printf ("slice #%d at %x\n", slice_no, slice->s_ptr);
 
@@ -116,6 +120,12 @@ cubes_set_9800 ()
 {
 	cubes_build_filename = cubes_9800_build_filename;
 	cubes_read_slice = cubes_9800_read_slice;
+}
+
+cubes_set_8800 ()
+{
+	cubes_build_filename = cubes_8800_build_filename;
+	cubes_read_slice = cubes_8800_read_slice;
 }
 
 cubes_set_9800_compressed ()
@@ -358,7 +368,7 @@ cubes_9800_read_slice (slice, size, file_name)
 #else
 	PIXEL	*data_ptr;
 #endif
-#ifndef vms | stellar | hp 
+#if !(vms || stellar || hp)
 	/*
 	 * zero memory for image
 	 */
@@ -470,7 +480,7 @@ cubes_9800_read_compressed_slice (slice, size, file_name)
 #else
 	PIXEL	*data_ptr;
 #endif
-#ifndef vms | stellar | hp
+#if !(vms || stellar || hp)
 	/*
 	 * zero memory for image
 	 */
@@ -649,3 +659,146 @@ static short *ct9800_build_line_table (file_name, resolution)
 #endif
 	return (map);
 }
+
+	/********************
+	 * 2d, 8800 headers *
+	 ********************/
+static char *
+cubes_8800_build_filename (prefix, number)
+    char *prefix;
+    int number;
+{
+	sprintf (line, "%s.8800", prefix);
+	return (line);
+}
+
+static void
+cubes_8800_read_slice (slice, size, file_name, number)
+    PIXEL *slice;
+    int size;
+    char *file_name;
+    int number;
+{
+
+	int	offset;
+	PIXEL	*ptr;
+	PIXEL	*start, *end;
+	int	half_resolution;
+	int	i;
+	short	*line;
+	short	*line_table;
+	PIXEL	data[256];
+	PIXEL	*data_end = data + 256;
+	PIXEL	*data_ptr = data + 256;
+	FILE	*file_ptr;
+
+#if !(vms || stellar || hp)
+	/*
+	 * zero memory for image
+	 */
+
+	bzero (slice, size * sizeof (PIXEL));
+#else
+	end = slice + size;
+	for (ptr = slice; ptr < end; ) *ptr++ = 0;
+#endif
+	/*
+	 * build the line table
+	 */
+	
+	line_table = (short*) ct8800_build_line_table (file_name, lines_per_slice);
+	line = line_table;
+
+	/*
+	 * seek to start of data
+	 */
+
+	file_ptr = fopen (file_name, "r");
+	if (file_ptr == NULL) {
+		fprintf (stderr, "cubes_9800_read_slice: cannot open %s\n", file_name);
+		perror ("cubes_9800_read_slice");
+		exit ();
+	}
+	offset = 1024 + (number - 1) * 316 * 512;
+	fseek (file_ptr, offset, 0);
+
+	/*
+	 * build image
+	 */
+
+	half_resolution = pixels_per_line / 2;
+	ptr = slice;
+	for (i = 0; i < lines_per_slice; i++, line++, ptr += pixels_per_line) {
+		start = ptr + (half_resolution - *line);
+		end = start + (*line * 2);
+		for (; start < end; start++, data_ptr++) {
+			if (data_ptr >= data_end) {
+				fread (data, sizeof (PIXEL), 256, file_ptr);
+				data_ptr = data;
+			}
+			*start = *data_ptr;
+		}
+	}
+	fclose (file_ptr);
+	free (line_table);
+}
+
+static short *ct8800_build_line_table (file_name, resolution)
+    char *file_name;
+    int resolution;
+{
+	int	i, j;
+	int	llflg;
+	float	ydiam, xdiam;
+	float	pixsz;
+	int	yhigh, xhigh;
+	short	*map;
+
+	ydiam = 25.599991;
+	xdiam = 25.599991;
+	pixsz = 0.8;
+	llflg = 1;
+
+	map = (short *) malloc (resolution * sizeof (short));
+
+	if (llflg == 0) {
+		xdiam = 43.15;
+		ydiam = 43.15;
+		pixsz = 1.3485336;
+	}
+
+	/*
+	 * convert head and length to number of pixels
+	 */
+
+	yhigh = 5.0 * ydiam / pixsz + .5;
+	xhigh = 5.0 * xdiam / pixsz + .5;
+
+	if (xhigh > 160) xhigh = 160;
+	if (yhigh > 160) yhigh = 160;
+
+	/*
+	 * for lines with no reconstruction, fill in with 1's
+	 */
+
+	for (i = 160; i > yhigh; i++) *(map + 160 - i) = 1;
+
+	/*
+	 * fill in image with ellipse formula
+	 */
+
+	for (i = yhigh; i > 0; i--) {
+		j = 160 - i;
+		
+		*(map + j) = xhigh * sqrt (1.0 - pow (((float) i - .5) / (float) yhigh), 2.0) + .5;
+	}
+
+	/*
+	 * fill in bottom half
+	 */
+
+	for (i = 160; i < 2 * 160; i++) *(map + i) = *(map + 2 * 160 - 1 - i);
+		
+	return (map);
+}
+

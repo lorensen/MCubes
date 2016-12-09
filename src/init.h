@@ -6,7 +6,7 @@
 
  * module:      init.h
 
- * version:     1.1 05/17/88 07:33:12
+ * version:     1.2 03/21/89 07:13:45
 
  * facility:
 		Initializations for Marching Cubes externals
@@ -57,6 +57,15 @@ float	aspect_xy_to_z;
 int     line;
 int     pixel;
 int     slice;
+
+static float x_min = 1.e30;
+static float x_max = -1.e30;
+
+static float y_min = 1.e30;
+static float y_max = -1.e30;
+
+static float z_min = 1.e30;
+static float z_max = -1.e30;
 
 /*
  * command line and command file options:
