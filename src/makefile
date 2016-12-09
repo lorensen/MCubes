@@ -22,7 +22,7 @@ SOURCES = $(OBJECTS:%.o=%.c) \
 LOAD = $(CC)
 
 .INIT:
-	-mkdir $(ARCH)
+	@-mkdir $(ARCH) 2>/dev/null; exit 0
 
 all: .INIT $(SOURCES) cubes-$(ARCH) toold-$(ARCH)
 
