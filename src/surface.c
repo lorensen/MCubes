@@ -6,7 +6,7 @@
 
  * module:      surface.c
 
- * version:     1.4 12/29/88 11:04:37
+ * version:     1.6 01/06/89 17:06:09
 
  * facility:	Surface Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)surface.c	1.4";
+static char    *sccs_id = "@(#)surface.c	1.6";
 #endif
 
 /*
@@ -56,30 +56,6 @@ typedef struct {
 	if (t < 0.0) t = 0.0;\
 	if (t > 1.0) t = 1.0;\
 	one_minus_t = 1.0 - t
-
-#define save_edge_1_line(vertex)	\
-	(new_line + pixel)->line_edge_1 = *vertex
-
-#define save_edge_4_cube(vertex)		\
-	new_cube->cube_edge_4 = *vertex
-
-#define save_edge_5_line(vertex)	\
-	(new_line + pixel)->line_edge_5 = *vertex
-
-#define save_edge_8_cube(vertex)	\
-	new_cube->cube_edge_8 = *vertex
-
-#define save_edge_9_cube(vertex)	\
-	new_cube->cube_edge_9 = *vertex
-
-#define save_edge_9_line(vertex)	\
-	(new_line + pixel)->line_edge_9 = *vertex
-
-#define save_edge_10_line(vertex)	\
-	(new_line + pixel)->line_edge_10 = *vertex
-
-#define save_edge_11_cube(vertex)	\
-	new_cube->cube_edge_11 = *vertex
 
 #define NORMAL_X(p1)		\
 	((*(p1 + 1) & data_mask) - (*(p1 - 1) & data_mask))
@@ -114,14 +90,6 @@ LOCAL VERTEX	interpolate_surface_9 ();
 LOCAL VERTEX	interpolate_surface_10 ();
 LOCAL VERTEX	interpolate_surface_11 ();
 LOCAL VERTEX	interpolate_surface_12 ();
-LOCAL VERTEX	recover_edge_4_from_cube ();
-LOCAL VERTEX	recover_edge_8_from_cube ();
-LOCAL VERTEX	recover_edge_9_from_cube ();
-LOCAL VERTEX	recover_edge_11_from_cube ();
-LOCAL VERTEX	recover_edge_1_from_line ();
-LOCAL VERTEX	recover_edge_5_from_line ();
-LOCAL VERTEX	recover_edge_9_from_line ();
-LOCAL VERTEX	recover_edge_10_from_line ();
 LOCAL int	cubes_build_surface_index ();
 LOCAL int	cubes_surface_inside ();
 LOCAL VERTEX	*cubes_surface_intersect ();
@@ -165,10 +133,6 @@ extern double sqrt ();
 extern PIXEL	*slice_1, *slice_2;
 extern float aspect_xy_to_z;
 extern PIXEL data_mask;
-extern CUBE_EDGES *new_cube;
-extern CUBE_EDGES *old_cube;
-extern LINE_EDGES *new_line;
-extern LINE_EDGES *old_line;
 extern int line;
 extern int number_nodes;
 extern int pixel;
@@ -218,7 +182,7 @@ cubes_new_surface (stype, file, value)
 
 	surface = (SURFACE *) malloc (sizeof (SURFACE));
 
-	surface->surface_value = 1.0001 * value;
+	surface->surface_value = 1.000 * value;
 
 	/*
 	 * set solid object pointer
@@ -348,14 +312,12 @@ LOCAL VERTEX interpolate_surface_1 (surface, slice_0, slice_1, slice_2)
 	v1.nz = NORMAL_Z (slice_0 + offset_1,
 			  slice_1 + offset_1,
 			  slice_2 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_0 + offset_2,
 			  slice_1 + offset_2,
 			  slice_2 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	/*
 	 * interpolate normal
@@ -401,22 +363,18 @@ LOCAL VERTEX interpolate_surface_2 (surface, slice_0, slice_1, slice_2)
 	v1.nz = NORMAL_Z (slice_0 + offset_1,
 			  slice_1 + offset_1,
 			  slice_2 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_0 + offset_2,
 			  slice_1 + offset_2,
 			  slice_2 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
 	vertex->nz = v1.nz * one_minus_t + v2.nz * t;
 
 	NORMALIZE_XYZ (vertex);
-
-	save_edge_4_cube (vertex);
 
 	return (*vertex);
 
@@ -448,22 +406,18 @@ LOCAL VERTEX interpolate_surface_3 (surface, slice_0, slice_1, slice_2)
 	v1.nz = NORMAL_Z (slice_0 + offset_1,
 			  slice_1 + offset_1,
 			  slice_2 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_0 + offset_2,
 			  slice_1 + offset_2,
 			  slice_2 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
 	vertex->nz = v1.nz * one_minus_t + v2.nz * t;
 
 	NORMALIZE_XYZ (vertex);
-
-	save_edge_1_line (vertex);
 
 	return (*vertex);
 
@@ -495,14 +449,12 @@ LOCAL VERTEX interpolate_surface_4 (surface, slice_0, slice_1, slice_2)
 	v1.nz = NORMAL_Z (slice_0 + offset_1,
 			  slice_1 + offset_1,
 			  slice_2 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_0 + offset_2,
 			  slice_1 + offset_2,
 			  slice_2 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
@@ -541,14 +493,12 @@ LOCAL VERTEX interpolate_surface_5 (surface, slice_0, slice_1, slice_2, slice_3)
 	v1.nz = NORMAL_Z (slice_1 + offset_1,
 			  slice_2 + offset_1,
 			  slice_3 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_1 + offset_2,
 			  slice_2 + offset_2,
 			  slice_3 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
@@ -587,22 +537,18 @@ LOCAL VERTEX interpolate_surface_6 (surface, slice_0, slice_1, slice_2, slice_3)
 	v1.nz = NORMAL_Z (slice_1 + offset_1,
 			  slice_2 + offset_1,
 			  slice_3 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_1 + offset_2,
 			  slice_2 + offset_2,
 			  slice_3 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
 	vertex->nz = v1.nz * one_minus_t + v2.nz * t;
 
 	NORMALIZE_XYZ (vertex);
-
-	save_edge_8_cube (vertex);
 
 	return (*vertex);
 
@@ -635,22 +581,18 @@ LOCAL VERTEX interpolate_surface_7 (surface, slice_0, slice_1, slice_2, slice_3)
 	v1.nz = NORMAL_Z (slice_1 + offset_1,
 			  slice_2 + offset_1,
 			  slice_3 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_1 + offset_2,
 			  slice_2 + offset_2,
 			  slice_3 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
 	vertex->nz = v1.nz * one_minus_t + v2.nz * t;
 
 	NORMALIZE_XYZ (vertex);
-
-	save_edge_5_line (vertex);
 
 	return (*vertex);
 
@@ -683,14 +625,12 @@ LOCAL VERTEX interpolate_surface_8 (surface, slice_0, slice_1, slice_2, slice_3)
 	v1.nz = NORMAL_Z (slice_1 + offset_1,
 			  slice_2 + offset_1,
 			  slice_3 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_1 + offset_2,
 			  slice_2 + offset_2,
 			  slice_3 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
@@ -727,14 +667,12 @@ LOCAL VERTEX interpolate_surface_9 (surface, slice_0, slice_1, slice_2, slice_3)
 	v1.nz = NORMAL_Z (slice_0,
 			  slice_1,
 			  slice_2);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_1,
 			  slice_2,
 			  slice_3);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
@@ -774,22 +712,18 @@ LOCAL VERTEX interpolate_surface_10 (surface, slice_0, slice_1, slice_2, slice_3
 	v1.nz = NORMAL_Z (slice_0 + offset_1,
 			  slice_1 + offset_1,
 			  slice_2 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_1 + offset_2,
 			  slice_2 + offset_2,
 			  slice_3 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
 	vertex->nz = v1.nz * one_minus_t + v2.nz * t;
 
 	NORMALIZE_XYZ (vertex);
-
-	save_edge_9_cube (vertex);
 
 	return (*vertex);
 
@@ -823,22 +757,18 @@ LOCAL VERTEX interpolate_surface_11 (surface, slice_0, slice_1, slice_2, slice_3
 	v1.nz = NORMAL_Z (slice_0 + offset_1,
 			  slice_1 + offset_1,
 			  slice_2 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_1 + offset_2,
 			  slice_2 + offset_2,
 			  slice_3 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
 	vertex->nz = v1.nz * one_minus_t + v2.nz * t;
 
 	NORMALIZE_XYZ (vertex);
-
-	save_edge_9_line (vertex);
 
 	return (*vertex);
 
@@ -872,14 +802,12 @@ LOCAL VERTEX interpolate_surface_12 (surface, slice_0, slice_1, slice_2, slice_3
 	v1.nz = NORMAL_Z (slice_0 + offset_1,
 			  slice_1 + offset_1,
 			  slice_2 + offset_1);
-	NORMALIZE_XYZ (&v1);
 
 	v2.nx = NORMAL_X (p2);
 	v2.ny = NORMAL_Y (p2);
 	v2.nz = NORMAL_Z (slice_1 + offset_2,
 			  slice_2 + offset_2,
 			  slice_3 + offset_2);
-	NORMALIZE_XYZ (&v2);
 
 	vertex->nx = v1.nx * one_minus_t + v2.nx * t;
 	vertex->ny = v1.ny * one_minus_t + v2.ny * t;
@@ -887,90 +815,10 @@ LOCAL VERTEX interpolate_surface_12 (surface, slice_0, slice_1, slice_2, slice_3
 
 	NORMALIZE_XYZ (vertex);
 
-	save_edge_11_cube (vertex);
-	save_edge_10_line (vertex);
-
 	return (*vertex);
 
 } /* interpolate_surface_12 */
 	
-
-
-/*++
- *
- * routine recover_edge_x_from_yyyy ()
-
- * functional description:
-	Recovers an interpolated vertex from the last cube,
-	line or slice
-
- * formal parameters:
-	none
-
- * implicit inputs:
-	none
-
- * implicit outputs:
-	none
-
- * routine value:
-
- * completion codes:
-	none
-
- *
- */
-
-LOCAL VERTEX recover_edge_4_from_cube ()
-{
-	return (old_cube->cube_edge_4);
-
-} /* recover_edge_4_from_cube */
-
-LOCAL VERTEX recover_edge_8_from_cube ()
-{
-	return (old_cube->cube_edge_8);
-
-} /* recover_edge_8_from_cube */
-
-LOCAL VERTEX recover_edge_9_from_cube ()
-{
-	return (old_cube->cube_edge_9);
-
-} /* recover_edge_9_from_cube */
-
-LOCAL VERTEX recover_edge_11_from_cube ()
-{
-	save_edge_9_line (&old_cube->cube_edge_11);
-	return (old_cube->cube_edge_11);
-
-} /* recover_edge_11_from_cube */
-
-LOCAL VERTEX recover_edge_1_from_line ()
-{
-	return ((old_line + pixel)->line_edge_1);
-
-} /* recover_edge_1_from_line */
-
-LOCAL VERTEX recover_edge_5_from_line ()
-{
-	return ((old_line + pixel)->line_edge_5);
-
-} /* recover_edge_5_from_line */
-
-LOCAL VERTEX recover_edge_9_from_line ()
-{
-	return ((old_line + pixel)->line_edge_9);
-
-} /* recover_edge_9_from_line */
-
-LOCAL VERTEX recover_edge_10_from_line ()
-{
-	save_edge_9_cube (&(old_line + pixel)->line_edge_10);
-	return ((old_line + pixel)->line_edge_10);
-
-} /* recover_edge_10_from_line */
-
 
 /*++
  *
