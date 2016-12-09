@@ -6,7 +6,7 @@
 
  * module:      cubes.c
 
- * version:     1.1 05/17/88 07:26:44
+ * version:     1.2 08/26/88 07:32:33
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -59,13 +59,10 @@ static	char	file_name[80];
 static VERTEX	output_vertex;
 static	int	number_edges = 0;
 #ifndef lint
-static	char    *sccs_id = "@(#)cubes.c	1.1";
+static	char    *sccs_id = "@(#)cubes.c	1.2";
 #endif
 static	int *save_ptr;
 static	int	file_number = 0;
-#ifdef u370
-static	long	max_edges = 0;
-#endif
 
 /*
  * external references:
@@ -90,7 +87,7 @@ main (argc, argv)
 	 * advertise a little
 	 */
 
-	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.1", "05/17/88");
+	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.2", "08/26/88");
 
 	/*
 	 * user input can come from three sources
@@ -120,12 +117,6 @@ main (argc, argv)
 		}
 		cubes_parse_commands (command_ptr);
 	}
-
-	/*
-	 * 3) process menus
-	 */
-
-	if (interactive) cubes_interactive ();
 
 	/*
 	 * open files
@@ -203,17 +194,6 @@ cubes_init ()
 	}
 
 	/*
-	 * get memory for connectivity
-	 */
-
-	if ((connectivity = 
-		(CONNECTIVITY *) malloc ((unsigned) (MAX_CONNECTIVITY *
-			sizeof(CONNECTIVITY)))) == NULL) {
-		fprintf (stderr, "CUBES: Insufficient memory for connectivity\n");
-		exit (1);
-	}
-
-	/*
 	 * get memory for node and normal
 	 */
 
@@ -264,9 +244,6 @@ cubes_init ()
 	 */
 
 	sprintf (file_name, "%s.tri", output_prefix);
-#ifdef u370
-	max_edges = BLOCK_SIZE * ulimit (1, 0) / sizeof (VERTEX);
-#endif
 #ifdef vms
 	vertex_file = fopen (file_name, "wb");
 #else
@@ -291,13 +268,11 @@ cubes_init ()
 	none
 
  * implicit inputs:
-	connectivity    - pointer to connectivity table
 	lines_per_slice - number of lines per slice
 	number_slices   - number of slices
 	pixels_per_line - number of pixels per line
 
  * implicit outputs:
-	length_connectivity - length of connectivity
 	line            - number of current line
 	pixel           - number of current pixel
 	slice           - number of current slice
@@ -734,69 +709,6 @@ cubes_summary ()
 	}
 }
 
-#ifndef vms
-
-/*++
- *
- * routine cubes_open_new_vertex_file ()
-
- * functional description:
-	Opens a new vertex file once unix file limit is exceeded
-
- * formal parameters:
-	none
-
- * implicit inputs:
-	FILE	*vertex-file - file pointer for old vertex file
-	char	*output_prefix - prefix for vertex file
-	int	file_number - number of extra vertex files needed
-
- * implicit outputs:
-	FILE	*vertex-file - file pointer for new vertex file
-	int	file_number - number of extra vertex files needed
-
-
- * routine value:
-
- * completion codes:
-	none
-
- *
- */
-
-cubes_open_new_vertex_file ()
-{
-	/*
-	 * close the old file
-	 */
-
-	fclose (vertex_file);
-
-	/*
-	 * generate a file name for the new vertex file
-	 */
-
-	sprintf (file_name,
-			"%s.tri.%d",
-			output_prefix,
-			++file_number);
-
-	/*
-	 * open the new vertex file
-	 */
-	vertex_file = fopen (file_name, "w");
-
-	printf ("CUBES: opening an additional vertex file %s\n", file_name);
-	if (vertex_file == NULL) {
-		fprintf (stderr,
-			"CUBES: cannot open additional vertex file %s\n", file_name);
-		perror ("CUBES");
-		exit (1);
-	}
-
-} /* cubes_open_new_vertex_file */
-#endif
-
 
 /*++
  *
@@ -812,7 +724,6 @@ cubes_open_new_vertex_file ()
 
  * implicit inputs:
 	int number_edges - number of edges output so far
-	int max_edges - maximum number of edges allowed in a file
 	FILE *vertex_file - file pointer for vertex file
 
  * implicit outputs:
@@ -845,16 +756,6 @@ cubes_output_vertices (number_survivors, survivors)
 		if (survivor->solid->solid_visible == 0) continue;
 
 		vertex_count = survivor->vertex_count;
-#ifdef u370
-		/*
-		 * see if we need to open another file
-		 */
-	
-		if ((number_edges + vertex_count) > max_edges) {
-			cubes_open_new_vertex_file ();
-			number_edges = 0;
-		}
-#endif
 		number_edges += vertex_count;
 
 		/*
