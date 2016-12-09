@@ -6,7 +6,7 @@
 
  * module:      cubes.h
 
- * version:     1.6 10/16/92 07:33:43
+ * version:     1.7 10/17/93 13:40:22
 
  * facility:
 		Marching Cubes
@@ -40,7 +40,7 @@
 #define LOCAL static
 #endif
 
-#define MAX_CASE_LENGTH 20
+#define MAX_CASE_LENGTH 32
 #define MAX_NODES 1
 #define MAX_CONNECTIVITY 15
 #define DPRINT if (debug) printf

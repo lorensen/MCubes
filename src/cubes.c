@@ -6,7 +6,7 @@
 
  * module:      cubes.c
 
- * version:     1.9 02/18/92 08:21:05
+ * version:     1.10 10/17/93 13:40:53
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -56,7 +56,7 @@ static	char	file_name[80];
 static VERTEX	output_vertex;
 static	int	number_edges = 0;
 #ifndef lint
-static	char    *sccs_id = "@(#)cubes.c	1.9";
+static	char    *sccs_id = "@(#)cubes.c	1.10";
 #endif
 static	int *save_ptr;
 static	int	file_number = 0;
@@ -84,7 +84,7 @@ main (argc, argv)
 	 * advertise a little
 	 */
 
-	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.9", "02/18/92");
+	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.10", "10/17/93");
 
 	/*
 	 * user input can come from three sources
@@ -472,6 +472,7 @@ cubes_triangulate (slice_0, slice_1, slice_2, slice_3)
 	SURVIVOR *last_survivor;
 register SURVIVOR *survivor;
 	VERTEX	*vertex_ptr;
+	VERTEX	*this_vertex;
 	int	number_survivors;
 	int     index;
 register EDGE_LIST *edge;
@@ -520,7 +521,7 @@ register EDGE_LIST *edge;
 		poly_case = poly_cases + survivor->index;
 		edge = poly_case->edges;
 		vertex_ptr = survivor->vertices;
-
+		this_vertex = vertex_ptr;
 		while (*edge != 0) {
 
 			/*
@@ -543,6 +544,8 @@ register EDGE_LIST *edge;
 
 			edge++;
 			if (*edge == 0) {
+				cubes_verify_normal (survivor->index, this_vertex);
+				this_vertex = vertex_ptr;
 				edge++;
 				continue;
 			}
@@ -568,6 +571,59 @@ register EDGE_LIST *edge;
 	cubes_output_vertices (number_survivors, survivors);
 
 } /* cubes_triangulate */
+
+cubes_verify_normal (index, vertex)
+    int index;
+    VERTEX *vertex;
+{
+	float tri_normal[3];
+	float vertex_normal[3];
+	float	p0[3], p1[3], p2[3];
+	float	e0[3], e1[3];
+	float	dot[3];
+	int	bad = 0;
+	int	i;
+
+	/* move vertices into local storage */
+	memcpy (p0, vertex    , 3 * sizeof (float));
+	memcpy (p1, vertex + 1, 3 * sizeof (float));
+	memcpy (p2, vertex + 2, 3 * sizeof (float));
+
+	/* calculate edge vectors */
+	for (i = 0; i < 3; i++) {
+		e0[i] = p1[i] - p0[i];
+		e1[i] = p2[i] - p0[i];
+	}
+
+	/* calculate normal of triangle */
+	tri_normal[0] = e0[1] * e1[2] - e0[2] * e1[1];
+	tri_normal[1] = e0[2] * e1[0] - e0[0] * e1[2];
+	tri_normal[2] = e0[0] * e1[1] - e0[1] * e1[0];
+
+	/* dot tri_normal and vertex normal */
+	for (i = 0; i < 3; i++) {
+		dot[i] = tri_normal[0] * vertex[i].nx +
+		      tri_normal[1] * vertex[i].ny +
+		      tri_normal[2] * vertex[i].nz;
+		if (dot[i] > 0.0) {
+			vertex[i].nx = -vertex[i].nx;
+			vertex[i].ny = -vertex[i].ny;
+			vertex[i].nz = -vertex[i].nz;
+			bad++;
+		}
+	}
+	if (bad) {
+		fprintf (stdout, "%d bad normals, index %d\n", bad, index);
+		fprintf (stdout, "offending tri is:\n");
+		for (i = 0; i < 3; i++) {
+			fprintf (stdout, "\tdot: %f tri: %f %f %f %f %f %f\n",
+				dot[i],
+				vertex[i].x, vertex[i].y, vertex[i].z,
+				vertex[i].nx, vertex[i].ny, vertex[i].nz);
+		}
+	}
+}
+
 
 
 /*++

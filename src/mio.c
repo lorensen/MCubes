@@ -371,6 +371,7 @@ noh2d_read_image (file, x_size, y_size, slice)
 	status = fread ((char *) temp_slice, sizeof (PIXEL), size, file->stream);
 #if !defined(vms) && !defined(ultrix)
 	swab ((char *) temp_slice, (char *) slice, size * sizeof (PIXEL));
+	free (temp_slice);
 #else
 	memcpy (slice, temp_slice, size * sizeof (PIXEL));
 #endif

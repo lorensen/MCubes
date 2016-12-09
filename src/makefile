@@ -16,13 +16,15 @@ SOURCES = $(OBJECTS:%.o=%.c) \
 	cubes.h init.h  \
 	permutes cases.cas mkcase.c permute.c permute.h
 
+LOAD = $(CC)
+
 .INIT:
 	-mkdir $(ARCH)
 
 all: $(SOURCES) cubes-$(ARCH) toold-$(ARCH)
 
 cubes-$(ARCH): $(OBJECTS:%=$(ARCH)/%)
-	cc $(PROFILE) $(DEBUG) -o cubes-$(ARCH) \
+	$(LOAD) $(PROFILE) $(DEBUG) -o cubes-$(ARCH) \
 	$(OBJECTS:%=$(ARCH)/%) \
 	$(FLOAT_OPTION) -lm
 
