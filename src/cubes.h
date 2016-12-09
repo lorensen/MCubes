@@ -6,7 +6,7 @@
 
  * module:      cubes.h
 
- * version:     1.5 02/18/92 08:23:52
+ * version:     1.6 10/16/92 07:33:43
 
  * facility:
 		Marching Cubes
@@ -40,6 +40,7 @@
 #define LOCAL static
 #endif
 
+#define MAX_CASE_LENGTH 20
 #define MAX_NODES 1
 #define MAX_CONNECTIVITY 15
 #define DPRINT if (debug) printf
@@ -64,7 +65,7 @@
 typedef int EDGE_LIST;
 
 typedef struct {
-       EDGE_LIST edges[65];
+       EDGE_LIST edges[MAX_CASE_LENGTH+1];
 } POLY_CASES;
  
 typedef short PIXEL;

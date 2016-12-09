@@ -1,3 +1,4 @@
+#define MAX_CASE_LENGTH 20
 #define MAX_CASES       28
 #define DPRINT if (debug) printf
 
