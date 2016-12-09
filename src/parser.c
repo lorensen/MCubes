@@ -6,7 +6,7 @@
 
  * module:      parser.c
 
- * version:     1.1 05/17/88 07:28:45
+ * version:     1.2 12/29/88 11:06:36
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -54,6 +54,7 @@
 
 #define CUT		(strncmp (keyword, "cut",MINMATCH) == 0)
 #define CAP		(strncmp (keyword, "cap",MINMATCH) == 0)
+#define GRADIENT	(strncmp (keyword, "gradient",MINMATCH) == 0)
 #define REFORMAT	(strncmp (keyword, "reformat",MINMATCH) == 0)
 #define SURFACE		(strncmp (keyword, "surface",MINMATCH) == 0)
 #define SPHERE		(strncmp (keyword, "sphere",MINMATCH) == 0)
@@ -62,6 +63,7 @@
 #define SIGNA		(strncmp (keyword, "signa",MINMATCH) == 0)
 #define XIM		(strncmp (keyword, "xim",MINMATCH) == 0)
 #define CT9800		(strncmp (keyword, "9800",MINMATCH) == 0)
+#define CCT9800		(strncmp (keyword, "c9800",MINMATCH) == 0)
 
 /*
  * own storage:
@@ -180,6 +182,10 @@ cubes_parse_commands (command_ptr)
 			cubes_set_9800 ();
 		}
 
+		else if (CCT9800) {
+			cubes_set_9800_compressed ();
+		}
+
 		else if (XIM) {
 			cubes_set_xim ();
 		}
@@ -250,6 +256,10 @@ cubes_parse_commands (command_ptr)
 		else if (SURFACE) {
 			sscanf (line_ptr, "%s%s%f", name, file, &value);
 			cubes_new_surface (name, file, value);
+		}
+		else if (GRADIENT) {
+			sscanf (line_ptr, "%s%s%d%*c%d", name, file, &min, &max);
+			cubes_new_gradient (name, file, min, max);
 		}
 		else if (MASK) {
 			sscanf (line_ptr, "%s%s%x", name, file, &int_mask);

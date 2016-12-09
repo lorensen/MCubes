@@ -6,7 +6,7 @@
 
  * module:      surface.c
 
- * version:     1.3 09/01/88 14:12:42
+ * version:     1.4 12/29/88 11:04:37
 
  * facility:	Surface Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)surface.c	1.3";
+static char    *sccs_id = "@(#)surface.c	1.4";
 #endif
 
 /*
@@ -1113,7 +1113,7 @@ LOCAL VERTEX *cubes_surface_intersect (surface, vertex_1, vertex_2)
 	int	i;
 	int	inside;
 	int	inside_1;
-#define MAX_ITERATIONS 8
+#define MAX_ITERATIONS 12
 
 	/*
 	 * solution by bisection method
@@ -1165,7 +1165,7 @@ LOCAL VERTEX *cubes_surface_intersect (surface, vertex_1, vertex_2)
 	vertex->nx = vertex_1->nx * one_minus_t + vertex_2->nx * t;
 	vertex->ny = vertex_1->ny * one_minus_t + vertex_2->ny * t;
 	vertex->nz = vertex_1->nz * one_minus_t + vertex_2->nz * t;
-
+	NORMALIZE_XYZ (vertex);
 	return (vertex);
 
 } /* cubes_surface_intersect */

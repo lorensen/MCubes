@@ -6,7 +6,7 @@
 
  * module:      sphere.c
 
- * version:     1.4 09/01/88 14:13:00
+ * version:     1.5 12/29/88 11:00:54
 
  * facility:	Edge Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)sphere.c	1.4";
+static char    *sccs_id = "@(#)sphere.c	1.5";
 #endif
 
 /*
@@ -58,6 +58,16 @@ typedef struct {
  * macros:
  */
 
+#define NORMALIZE_XYZ(xyz)	\
+	length = sqrt ((xyz)->nx * (xyz)->nx +\
+		       (xyz)->ny * (xyz)->ny +\
+		       (xyz)->nz * (xyz)->nz);\
+	if (length != 0.0) {\
+		 (xyz)->nx /= length;\
+		 (xyz)->ny /= length;\
+		 (xyz)->nz /= length;\
+	}
+
 /*
  * own storage:
  */
@@ -85,6 +95,7 @@ LOCAL int cubes_sphere_inside ();
 LOCAL int cubes_sphere_normal ();
 LOCAL int cubes_sphere_reformat ();
 LOCAL VERTEX *cubes_sphere_intersect ();
+LOCAL VERTEX *cubes_sphere_intersect_edge ();
 
 static EDGE_PROCEDURE interpolate_sphere_edges[13] = {
 	0,
@@ -310,7 +321,7 @@ LOCAL VERTEX interpolate_sphere_1 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.x += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	/*
 	 * return vertex
@@ -336,7 +347,7 @@ LOCAL VERTEX interpolate_sphere_2 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.y += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -358,7 +369,7 @@ LOCAL VERTEX interpolate_sphere_3 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.x += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -380,7 +391,7 @@ LOCAL VERTEX interpolate_sphere_4 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.y += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -402,7 +413,7 @@ LOCAL VERTEX interpolate_sphere_5 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.x += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -424,7 +435,7 @@ LOCAL VERTEX interpolate_sphere_6 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.y += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -446,7 +457,7 @@ LOCAL VERTEX interpolate_sphere_7 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.x += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -468,7 +479,7 @@ LOCAL VERTEX interpolate_sphere_8 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.y += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -487,7 +498,7 @@ LOCAL VERTEX interpolate_sphere_9 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.z += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -509,7 +520,7 @@ LOCAL VERTEX interpolate_sphere_10 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.z += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -531,7 +542,7 @@ LOCAL VERTEX interpolate_sphere_11 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.z += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -553,7 +564,7 @@ LOCAL VERTEX interpolate_sphere_12 (sphere, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.z += 1.0;
 
-	vertex = cubes_sphere_intersect (sphere, &v1, &v2);
+	vertex = cubes_sphere_intersect_edge (sphere, &v1, &v2);
 
 	return (*vertex);
 
@@ -668,6 +679,7 @@ LOCAL VERTEX *cubes_sphere_intersect (sphere, vertex_1, vertex_2)
 	double	dx, dy, dz;
 	double	a, b, c, disc;
 	double	offset_x, offset_y, offset_z;
+	float	length;
 
 	/*
 	 * calculate delta in x, y, z
@@ -721,12 +733,75 @@ LOCAL VERTEX *cubes_sphere_intersect (sphere, vertex_1, vertex_2)
 	vertex->nx = vertex_1->nx * one_minus_t + vertex_2->nx * t;
 	vertex->ny = vertex_1->ny * one_minus_t + vertex_2->ny * t;
 	vertex->nz = vertex_1->nz * one_minus_t + vertex_2->nz * t;
-
-/*	(*sphere->sphere_find_normal) (sphere);*/
+	NORMALIZE_XYZ(vertex);
 
 	return (vertex);
 
 } /* cubes_sphere_intersect */
+
+LOCAL VERTEX *cubes_sphere_intersect_edge (sphere, vertex_1, vertex_2)
+    VERTEX *vertex_1;
+    VERTEX *vertex_2;
+    SPHERE  *sphere;
+{
+	double	dx, dy, dz;
+	double	a, b, c, disc;
+	double	offset_x, offset_y, offset_z;
+
+	/*
+	 * calculate delta in x, y, z
+	 */
+
+	dx = vertex_2->x - vertex_1->x;
+	dy = vertex_2->y - vertex_1->y;
+	dz = vertex_2->z - vertex_1->z;
+	dx *= scale_x;
+	dy *= scale_y;
+	dz *= scale_z;
+
+	offset_x = (vertex_1->x - sphere->center_x) * scale_x;
+	offset_y = (vertex_1->y - sphere->center_y) * scale_y;
+	offset_z = (vertex_1->z - sphere->center_z) * scale_z;
+
+	/*
+	 * calculate t from the parametric representation of a line
+	 * and the sphere equation
+	 */
+
+	a = (dx * dx + dy * dy + dz * dz);
+	b = 2.0 * (dx * offset_x + dy * offset_y + dz * offset_z);
+	c = offset_x * offset_x +
+	    offset_y * offset_y +
+	    offset_z * offset_z -
+	    sphere->radius_2;
+
+	disc = b * b - 4.0 * a * c;
+
+	if (disc < 0.0) {
+		printf ("disc < 0.0 = %f\n", disc);
+		t = 0.0;
+	}
+	else {
+		disc = sqrt (disc);
+		t = (-b + disc) / (2.0 * a);
+		if (t < 0.0 || t > 1.0) t = (-b - disc) / (2.0 * a);
+	}
+
+	one_minus_t = 1.0 - t;
+
+	/*
+	 * calculate coordinates for the intersection point
+	 */
+
+	vertex->x = vertex_1->x * one_minus_t + vertex_2->x * t;
+	vertex->y = vertex_1->y * one_minus_t + vertex_2->y * t;
+	vertex->z = vertex_1->z * one_minus_t + vertex_2->z * t;
+
+	(*sphere->sphere_find_normal) (sphere);
+
+	return (vertex);
+
+} /* cubes_sphere_intersect_edge */
 
 LOCAL int cubes_sphere_normal (sphere)
     SPHERE *sphere;

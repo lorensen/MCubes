@@ -6,7 +6,7 @@
 
  * module:      octant.c
 
- * version:     1.2 09/01/88 14:13:07
+ * version:     1.3 12/29/88 11:01:58
 
  * facility:	Edge Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)octant.c	1.2";
+static char    *sccs_id = "@(#)octant.c	1.3";
 #endif
 
 /*
@@ -57,6 +57,16 @@ typedef struct {
 /*
  * macros:
  */
+
+#define NORMALIZE_XYZ(xyz)	\
+	length = sqrt ((xyz)->nx * (xyz)->nx +\
+		       (xyz)->ny * (xyz)->ny +\
+		       (xyz)->nz * (xyz)->nz);\
+	if (length != 0.0) {\
+		 (xyz)->nx /= length;\
+		 (xyz)->ny /= length;\
+		 (xyz)->nz /= length;\
+	}
 
 /*
  * own storage:
@@ -92,6 +102,7 @@ LOCAL int cubes_octant_inside_8 ();
 LOCAL int cubes_octant_normal ();
 LOCAL int cubes_octant_reformat ();
 LOCAL VERTEX *cubes_octant_intersect ();
+LOCAL VERTEX *cubes_octant_intersect_edge ();
 typedef int (*PROCEDURE)();
 static PROCEDURE cubes_octant_insides[9] = {
 	0,
@@ -352,7 +363,7 @@ LOCAL VERTEX interpolate_octant_1 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.x += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	/*
 	 * return vertex
@@ -378,7 +389,7 @@ LOCAL VERTEX interpolate_octant_2 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.y += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -400,7 +411,7 @@ LOCAL VERTEX interpolate_octant_3 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.x += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -422,7 +433,7 @@ LOCAL VERTEX interpolate_octant_4 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.y += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -444,7 +455,7 @@ LOCAL VERTEX interpolate_octant_5 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.x += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -466,7 +477,7 @@ LOCAL VERTEX interpolate_octant_6 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.y += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -488,7 +499,7 @@ LOCAL VERTEX interpolate_octant_7 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.x += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -510,7 +521,7 @@ LOCAL VERTEX interpolate_octant_8 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.y += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -529,7 +540,7 @@ LOCAL VERTEX interpolate_octant_9 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.z += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -551,7 +562,7 @@ LOCAL VERTEX interpolate_octant_10 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.z += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -573,7 +584,7 @@ LOCAL VERTEX interpolate_octant_11 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.z += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -595,7 +606,7 @@ LOCAL VERTEX interpolate_octant_12 (octant, slice_0, slice_1, slice_2, slice_3)
 	v2 = v1;
 	v2.z += 1.0;
 
-	vertex = cubes_octant_intersect (octant, &v1, &v2);
+	vertex = cubes_octant_intersect_edge (octant, &v1, &v2);
 
 	return (*vertex);
 
@@ -737,7 +748,7 @@ LOCAL int cubes_octant_inside_5 (octant, vertex)
 {
 	if (vertex->x <= octant->center_x &&
 	    vertex->y <= octant->center_y &&
-	    vertex->z >= octant->center_z) return (octant->outside);
+	    vertex->z > octant->center_z) return (octant->outside);
 
 	return (octant->inside);
 } /* cubes_octant_inside_5 */
@@ -776,6 +787,107 @@ LOCAL int cubes_octant_inside_8 (octant, vertex)
 } /* cubes_octant_inside_8 */
 
 LOCAL VERTEX *cubes_octant_intersect (octant, vertex_1, vertex_2)
+    VERTEX *vertex_1;
+    VERTEX *vertex_2;
+    OCTANT  *octant;
+{
+	float	length;
+	float	dx, dy, dz;
+
+	/*
+	 * find intersections with x, y, and z planes
+	 */
+
+	dx = vertex_2->x - vertex_1->x;
+	dy = vertex_2->y - vertex_1->y;
+	dz = vertex_2->z - vertex_1->z;
+
+	vertex->nx = 0.0;
+	vertex->ny = 0.0;
+	vertex->nz = 0.0;
+
+	for (;;) {
+		if (dx != 0.0) {
+			t = (octant->center_x - vertex_1->x) / dx;
+			if (t >= 0.0 && t <= 1.0) {
+				vertex->nx = 1.0;
+				break;
+			}
+		}
+
+		if (dy != 0.0) {
+			t = (octant->center_y - vertex_1->y) / dy;
+			if (t >= 0.0 && t <= 1.0) {
+				vertex->ny = 1.0;
+				break;
+			}
+		}
+
+		if (dz != 0.0) {
+			t = (octant->center_z - vertex_1->z) / dz;
+			if (t >= 0.0 && t <= 1.0) {
+				vertex->nz = 1.0;
+				break;
+			}
+		}
+	}
+
+	one_minus_t = 1.0 - t;
+
+	/*
+	 * calculate coordinates for the intersection point
+	 */
+
+	vertex->x = vertex_1->x * one_minus_t + vertex_2->x * t;
+	vertex->y = vertex_1->y * one_minus_t + vertex_2->y * t;
+	vertex->z = vertex_1->z * one_minus_t + vertex_2->z * t;
+
+	/*
+	 * calculate normal at intersection point
+	 */
+
+	vertex->nx = vertex_1->nx * one_minus_t + vertex_2->nx * t;
+	vertex->ny = vertex_1->ny * one_minus_t + vertex_2->ny * t;
+	vertex->nz = vertex_1->nz * one_minus_t + vertex_2->nz * t;
+
+	NORMALIZE_XYZ(vertex);
+
+	return (vertex);
+
+} /* cubes_octant_intersect */
+
+LOCAL int cubes_octant_reformat (octant)
+    OCTANT *octant;
+{
+	float	attenuate;
+
+	/*
+	 * normal is octant normal attenuated by data scale factor
+	 */
+
+	if (octant->reformat_window == 0) {
+		attenuate = 1.0;
+	}
+	else {
+		attenuate = (*p1 & data_mask) +
+			t * ((*p2 & data_mask) - (*p1 & data_mask));
+		attenuate = (attenuate - octant->reformat_min) / (octant->reformat_window);
+	}
+
+	/*
+	 * keep attenuation within range
+	 */
+
+	if (attenuate > 1.0) attenuate = 1.0;
+	if (attenuate < 0.0) attenuate = 0.0;
+
+	vertex->nx *= attenuate;
+	vertex->ny *= attenuate;
+	vertex->nz *= attenuate;
+
+} /* cubes_octant_reformat */
+
+LOCAL VERTEX *cubes_octant_intersect_edge (octant, vertex_1, vertex_2)
     VERTEX *vertex_1;
     VERTEX *vertex_2;
     OCTANT  *octant;
@@ -840,33 +952,3 @@ LOCAL VERTEX *cubes_octant_intersect (octant, vertex_1, vertex_2)
 
 } /* cubes_octant_intersect */
 
-LOCAL int cubes_octant_reformat (octant)
-    OCTANT *octant;
-{
-	float	attenuate;
-
-	/*
-	 * normal is octant normal attenuated by data scale factor
-	 */
-
-	if (octant->reformat_window == 0) {
-		attenuate = 1.0;
-	}
-	else {
-		attenuate = (*p1 & data_mask) +
-			t * ((*p2 & data_mask) - (*p1 & data_mask));
-		attenuate = (attenuate - octant->reformat_min) / (octant->reformat_window);
-	}
-
-	/*
-	 * keep attenuation within range
-	 */
-
-	if (attenuate > 1.0) attenuate = 1.0;
-	if (attenuate < 0.0) attenuate = 0.0;
-
-	vertex->nx *= attenuate;
-	vertex->ny *= attenuate;
-	vertex->nz *= attenuate;
-
-} /* cubes_octant_reformat */

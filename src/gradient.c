@@ -6,7 +6,7 @@
 
  * module:      gradient.c
 
- * version:     1.1 12/13/88 15:04:23
+ * version:     1.2 12/29/88 11:07:10
 
  * facility:	Marching Cubes triangle generator for sampled data
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)gradient.c	1.1";
+static char    *sccs_id = "@(#)gradient.c	1.2";
 #endif
 
 /*
@@ -42,6 +42,8 @@ static char    *sccs_id = "@(#)gradient.c	1.1";
  */
 
 typedef struct {
+	int	in;
+	int	out;
 	int	low;
 	int	high;
 } GRADIENT;
@@ -68,6 +70,7 @@ extern float   scale_x;
 extern float   scale_y;
 extern float   scale_z;
 extern float   aspect_xy_to_z;
+extern PIXEL data_mask;
 extern int line;
 extern int pixel;
 extern int slice;
@@ -219,7 +222,7 @@ register int gradient_index;
 	int next_pixel = 1;
 	int next_line = pixels_per_line;
 	PIXEL	p1, p2, p3;
-	int	gradient;
+	int	grad;
 	int	gx, gy, gz;
 
 	/*
@@ -234,14 +237,14 @@ register int gradient_index;
 	 * calculate square of gradient
 	 */
 
-	gradient = gx * gx + gy * gy + gz * gz;
+	grad = gx * gx + gy * gy + gz * gz;
 
 	/*
 	 * return inside if within gradient range
 	 */
 
-	if (gradient >= low && gradient <= high) gardient_index = gradient->in;
-	else gardient_index = gradient->out;
+	if (grad >= gradient->low && grad <= gradient->high) gradient_index = gradient->in;
+	else gradient_index = gradient->out;
 
 	return (gradient_index);
 }

@@ -6,7 +6,7 @@
 
  * module:      cubes.c
 
- * version:     1.3 09/01/88 14:12:16
+ * version:     1.4 12/29/88 11:05:01
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -56,7 +56,7 @@ static	char	file_name[80];
 static VERTEX	output_vertex;
 static	int	number_edges = 0;
 #ifndef lint
-static	char    *sccs_id = "@(#)cubes.c	1.3";
+static	char    *sccs_id = "@(#)cubes.c	1.4";
 #endif
 static	int *save_ptr;
 static	int	file_number = 0;
@@ -84,7 +84,7 @@ main (argc, argv)
 	 * advertise a little
 	 */
 
-	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.3", "09/01/88");
+	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.4", "12/29/88");
 
 	/*
 	 * user input can come from three sources
@@ -454,7 +454,7 @@ register EDGE_LIST *edge;
 	for (survivor = survivors, solid_ptr = solids;
 	     solid_ptr != NULL;
 	     solid_ptr = solid_ptr->solid_next) {
-		index = (*solid_ptr->solid_index) (solid_ptr->solid_object, slice_1, slice_2);
+		index = (*solid_ptr->solid_index) (solid_ptr->solid_object, slice_1, slice_2, slice_3);
 		if (index == OUTSIDE) {
 			survivor = survivors;
 			return;

@@ -6,7 +6,7 @@
 
  * module:      plane.c
 
- * version:     1.2 09/01/88 14:12:31
+ * version:     1.3 12/29/88 11:05:14
 
  * facility:	Edge Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)plane.c	1.2";
+static char    *sccs_id = "@(#)plane.c	1.3";
 #endif
 
 /*
@@ -59,6 +59,16 @@ typedef struct {
 #define EVALUATE_PLANE(x,y,z)\
 	(plane->plane_a * (x) + plane->plane_b * (y) + plane->plane_c * (z) +\
 	plane->plane_d)		
+
+#define NORMALIZE_XYZ(xyz)	\
+	length = sqrt ((xyz)->nx * (xyz)->nx +\
+		       (xyz)->ny * (xyz)->ny +\
+		       (xyz)->nz * (xyz)->nz);\
+	if (length != 0.0) {\
+		 (xyz)->nx /= length;\
+		 (xyz)->ny /= length;\
+		 (xyz)->nz /= length;\
+	}
 
 /*
  * own storage:
@@ -914,6 +924,7 @@ LOCAL VERTEX *cubes_plane_intersect (plane, vertex_1, vertex_2)
 {
 	float	x, y, z;
 	float	dx, dy, dz;
+	float	length;
 	float	v1x = vertex_1->x;
 	float	v1y = vertex_1->y;
 	float	v1z = vertex_1->z;
@@ -960,6 +971,7 @@ LOCAL VERTEX *cubes_plane_intersect (plane, vertex_1, vertex_2)
 	vertex->ny = vertex_1->ny * one_minus_t + vertex_2->ny * t;
 	vertex->nz = vertex_1->nz * one_minus_t + vertex_2->nz * t;
 
+	NORMALIZE_XYZ(vertex);
 /*	(*plane->plane_find_normal) (plane);*/
 
 	vertex->x = x; vertex->y = y; vertex->z = z;

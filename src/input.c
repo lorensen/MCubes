@@ -24,6 +24,7 @@ static void cubes_signa_read_slice ();
 static char *cubes_xim_build_filename ();
 static void cubes_xim_read_slice ();
 static char *cubes_9800_build_filename ();
+static void cubes_9800_read_compressed_slice ();
 static void cubes_9800_read_slice ();
 static short *ct9800_build_line_table ();
 
@@ -115,6 +116,12 @@ cubes_set_9800 ()
 {
 	cubes_build_filename = cubes_9800_build_filename;
 	cubes_read_slice = cubes_9800_read_slice;
+}
+
+cubes_set_9800_compressed ()
+{
+	cubes_build_filename = cubes_9800_build_filename;
+	cubes_read_slice = cubes_9800_read_compressed_slice;
 }
 
 cubes_set_xim ()
@@ -343,7 +350,7 @@ cubes_9800_read_slice (slice, size, file_name)
 	int	i;
 	short	*line;
 	short	*line_table;
-#ifndef vms
+#ifndef vms | stellar | hp
 	PIXEL	data[256];
 	PIXEL	*data_end = data + 256;
 	PIXEL	*data_ptr = data + 256;
@@ -351,7 +358,7 @@ cubes_9800_read_slice (slice, size, file_name)
 #else
 	PIXEL	*data_ptr;
 #endif
-#ifndef vms
+#ifndef vms | stellar | hp 
 	/*
 	 * zero memory for image
 	 */
@@ -398,6 +405,143 @@ cubes_9800_read_slice (slice, size, file_name)
 				data_ptr = data;
 			}
 			*start = *data_ptr;
+		}
+	}
+	fclose (file_ptr);
+#else
+	data_ptr = (PIXEL *) map_section (file_name, 0, "read", 0, 0, 0, 0, 0);
+	if (data_ptr == NULL) {
+		status = map_error_status ();
+		print_sys_msg ("CUBES:", status);
+		fprintf (stderr, "cubes: cannot map file %s\n", file_name);
+		exit (1);
+	}
+
+	data_ptr = data_ptr + 6 * 256;
+
+	/*
+	 * build image
+	 */
+
+	half_resolution = pixels_per_line / 2;
+	ptr = slice;
+	for (i = 0; i < lines_per_slice; i++, line++, ptr += pixels_per_line) {
+		start = ptr + (half_resolution - *line);
+		end = start + (*line * 2);
+		for (; start < end; start++, data_ptr++) *start = *data_ptr;
+	}
+
+	/*
+	 * swap bytes
+	 */
+
+	swap_byte (slice, size);
+
+	/*
+	 * delete section
+	 */
+
+	delete_section ();
+
+#endif
+	free (line_table);
+}
+
+static void
+cubes_9800_read_compressed_slice (slice, size, file_name)
+    PIXEL *slice;
+    int size;
+    char *file_name;
+{
+
+	PIXEL	*ptr;
+	PIXEL	*start, *end;
+	int	half_resolution;
+	int	i;
+	short	*line;
+	short	*line_table;
+#ifndef vms | stellar | hp
+	char	data[512];
+	char	*data_end = data + 512;
+	char	*data_ptr = data + 512;
+	char	pixel;
+	short	last_pixel;
+	FILE	*file_ptr;
+#else
+	PIXEL	*data_ptr;
+#endif
+#ifndef vms | stellar | hp
+	/*
+	 * zero memory for image
+	 */
+
+	bzero (slice, size * sizeof (PIXEL));
+#else
+	end = slice + size;
+	for (ptr = slice; ptr < end; ) *ptr++ = 0;
+#endif
+
+	/*
+	 * build the line table
+	 */
+	
+	line_table = (short*) ct9800_build_line_table (file_name, lines_per_slice);
+	line = line_table;
+
+#ifndef vms
+	/*
+	 * seek to start of data
+	 */
+
+#define CT9_IMAGE_START (6 * 256 * sizeof (short))
+	file_ptr = fopen (file_name, "r");
+	if (file_ptr == NULL) {
+		fprintf (stderr, "cubes_9800_read_slice: cannot open %s\n", file_name);
+		perror ("cubes_9800_read_slice");
+		exit ();
+	}
+	fseek (file_ptr, CT9_IMAGE_START, 0);
+
+	/*
+	 * build image
+	 */
+
+	half_resolution = pixels_per_line / 2;
+	ptr = slice;
+	for (i = 0; i < lines_per_slice; i++, line++, ptr += pixels_per_line) {
+		start = ptr + (half_resolution - *line);
+		end = start + (*line * 2);
+		for (; start < end; start++, data_ptr++) {
+			if (data_ptr >= data_end) {
+				fread (data, sizeof (char), 512, file_ptr);
+				data_ptr = data;
+			}
+
+			/*
+			 * see if pixel is compressed
+			 */
+
+			if (*data_ptr & 0x80) {
+
+				if (*data_ptr & 0x40) {
+					pixel = *data_ptr;
+				}
+				else {
+					pixel = *data_ptr & 0x3f;
+				}
+				last_pixel += pixel;
+			}
+			else {
+				last_pixel = *data_ptr << 8;
+				data_ptr++;
+				if (data_ptr >= data_end) {
+					fread (data, sizeof (char), 512, file_ptr);
+					data_ptr = data;
+				}
+				last_pixel |= (unsigned char) *data_ptr;
+				last_pixel += 2048;
+			}
+			*start = last_pixel;
 		}
 	}
 	fclose (file_ptr);

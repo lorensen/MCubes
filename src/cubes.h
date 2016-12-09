@@ -6,7 +6,7 @@
 
  * module:      cubes.h
 
- * version:     1.2 08/25/88 15:39:16
+ * version:     1.3 12/29/88 11:05:37
 
  * facility:
 		Marching Cubes
@@ -127,5 +127,3 @@ typedef struct {
 
 extern char *malloc ();
 extern char *strcpy ();
-extern char *sprintf ();
-

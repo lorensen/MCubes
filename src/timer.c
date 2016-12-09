@@ -37,7 +37,13 @@ static char    *sccs_id = "@(#)timer.c	1.1";
  */
 
 #include <sys/types.h>
+#ifdef stellar
+#include "times.h"
+#define TICKS 100
+#else
 #include <sys/times.h>
+#define TICKS 60
+#endif
 
 /*
  * macros:
@@ -141,7 +147,7 @@ timer_get_cpu (cpu_since_last)
 	 * convert tics to floating point seconds
 	 */
 
-	cpu_current = (float) time.tms_utime / 60.0;
+	cpu_current = (float) time.tms_utime / (float) TICKS;
 
 	/*
 	 * calculate time since last call
