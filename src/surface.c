@@ -6,7 +6,7 @@
 
  * module:      surface.c
 
- * version:     1.6 01/06/89 17:06:09
+ * version:     1.8 03/01/89 09:29:59
 
  * facility:	Surface Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)surface.c	1.6";
+static char    *sccs_id = "@(#)surface.c	1.8";
 #endif
 
 /*
@@ -874,8 +874,8 @@ register PIXEL *slice_2;
 {
 register int	index;
 register PIXEL	value = surface->surface_value;
-	int next_pixel = 1;
-	int next_line = pixels_per_line;
+register int next_pixel = 1;
+register int next_line = pixels_per_line;
 register PIXEL	p;
 
 	/*
@@ -912,21 +912,21 @@ register PIXEL	p;
 }
 
 LOCAL int cubes_surface_inside (surface, vertex)
-    SURFACE *surface;
-    VERTEX *vertex;
+register    SURFACE *surface;
+register    VERTEX *vertex;
 {
 	float	fp_1, fp_2, fp_3, fp_4;
 	float	fq_1, fq_2;
 	float	value;
 	float	x, y, z;
-	PIXEL	*p1 = slice_1 + pixel + line * pixels_per_line;
-	PIXEL	*p2 = p1 + 1;
-	PIXEL	*p3 = p2 + pixels_per_line;
- 	PIXEL	*p4 = p1 + pixels_per_line;
-	PIXEL	*p5 = slice_2 + pixel + line * pixels_per_line;
-	PIXEL	*p6 = p5 + 1;
-	PIXEL	*p7 = p6 + pixels_per_line;
-	PIXEL	*p8 = p5 + pixels_per_line;
+register	PIXEL	*p1 = slice_1 + pixel + line * pixels_per_line;
+register	PIXEL	*p2 = p1 + 1;
+register	PIXEL	*p3 = p2 + pixels_per_line;
+register 	PIXEL	*p4 = p1 + pixels_per_line;
+register	PIXEL	*p5 = slice_2 + pixel + line * pixels_per_line;
+register	PIXEL	*p6 = p5 + 1;
+register	PIXEL	*p7 = p6 + pixels_per_line;
+register	PIXEL	*p8 = p5 + pixels_per_line;
 
 	/*
 	 * interpolate function value at vertex and compare with surface
@@ -937,10 +937,10 @@ LOCAL int cubes_surface_inside (surface, vertex)
 	y = vertex->y - line;
 	z = vertex->z - slice;
 
-	fp_1 = *p1 + x * (*p2 - *p1);
-	fp_2 = *p4 + x * (*p3 - *p4);
-	fp_3 = *p5 + x * (*p6 - *p5);
-	fp_4 = *p8 + x * (*p7 - *p8);
+	fp_1 = (*p1 & data_mask) + x * ((*p2 & data_mask) - (*p1 & data_mask));
+	fp_2 = (*p4 & data_mask) + x * ((*p3 & data_mask) - (*p4 & data_mask));
+	fp_3 = (*p5 & data_mask) + x * ((*p6 & data_mask) - (*p5 & data_mask));
+	fp_4 = (*p8 & data_mask) + x * ((*p7 & data_mask) - (*p8 & data_mask));
 
 	fq_1 = fp_1 + y * (fp_2 - fp_1);
 	fq_2 = fp_3 + y * (fp_4 - fp_3);
@@ -1013,7 +1013,7 @@ LOCAL VERTEX *cubes_surface_intersect (surface, vertex_1, vertex_2)
 	vertex->nx = vertex_1->nx * one_minus_t + vertex_2->nx * t;
 	vertex->ny = vertex_1->ny * one_minus_t + vertex_2->ny * t;
 	vertex->nz = vertex_1->nz * one_minus_t + vertex_2->nz * t;
-	NORMALIZE_XYZ (vertex);
+/*	NORMALIZE_XYZ (vertex);*/
 	return (vertex);
 
 } /* cubes_surface_intersect */
