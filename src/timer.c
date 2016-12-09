@@ -139,6 +139,7 @@ timer_get_cpu (cpu_since_last)
 
     float *cpu_since_last;
 {
+
 	struct tms time;
 	float   cpu_current;
 	
@@ -146,8 +147,8 @@ timer_get_cpu (cpu_since_last)
 	 * get cpu time in 1/60 of a second
 	 */
 
+#ifndef VX
 	times (&time);
-	
 	/*
 	 * convert tics to floating point seconds
 	 */
@@ -165,5 +166,6 @@ timer_get_cpu (cpu_since_last)
 	 */
 
 	cpu_accumulated = cpu_current;
+#endif	
 
 }

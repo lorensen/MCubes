@@ -32,6 +32,7 @@ main (argc, argv)
 			permute_cases (line, cases + i);
 		}
 	}
+	exit (0);
 }
 
 read_cases (file)
