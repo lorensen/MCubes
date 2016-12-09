@@ -5,8 +5,10 @@
 .KEEP_STATE:
 PROFILE = 
 DEBUG =
-ARCH = $(TARGET_ARCH:-%=%)
 CFLAGS = -O2 $(DEBUG) $(PROFILE) $(FLOAT_OPTION)
+
+LIBS-sun4-solaris = -lc -lnsl -lsocket -lucb -lm
+LIBS = $(LIBS-$(ARCH))
 MIO = mio/$(ARCH)/mio.o crdidbmutil/$(ARCH)/libidbmutil.a
 OBJECTS = cubes.o cases.o options.o \
 	mask.o plane.o surface.o solid.o parser.o \
@@ -28,7 +30,7 @@ cubes-$(ARCH): $(OBJECTS:%=$(ARCH)/%)
 	$(LOAD) $(PROFILE) $(DEBUG) -o cubes-$(ARCH) \
 	$(OBJECTS:%=$(ARCH)/%) \
 	$(MIO) \
-	$(FLOAT_OPTION) -lm
+	$(FLOAT_OPTION) $(LIBS) -lm
 
 toold-$(ARCH): $(ARCH)/toold.o
 	cc -o toold-$(ARCH) $(ARCH)/toold.o
@@ -38,6 +40,8 @@ mkcase-$(ARCH): $(ARCH)/mkcase.o
 
 permute-$(ARCH): $(ARCH)/permute.o
 	cc -o permute-$(ARCH) $(ARCH)/permute.o
+
+$(ARCH)/cases.o: cases.h
 
 cases.h: permutes cases.cas mkcase-$(ARCH) permute-$(ARCH)
 	permute-$(ARCH) cases.cas >junk <permutes
