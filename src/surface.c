@@ -6,7 +6,7 @@
 
  * module:      surface.c
 
- * version:     1.9 04/30/91 08:40:33
+ * version:     1.10 10/01/93 07:04:06
 
  * facility:	Surface Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)surface.c	1.9";
+static char    *sccs_id = "@(#)surface.c	1.10";
 #endif
 
 /*
@@ -58,11 +58,11 @@ typedef struct {
 	one_minus_t = 1.0 - t
 
 #define NORMAL_X(p1)		\
-	((*(p1 + 1) & data_mask) - (*(p1 - 1) & data_mask))
+	((*(p1 - 1) & data_mask) - (*(p1 + 1) & data_mask))
 #define NORMAL_Y(p1)		\
-	((*(p1 + pixels_per_line) & data_mask) - (*(p1 - pixels_per_line) & data_mask))
+	((*(p1 - pixels_per_line) & data_mask) - (*(p1 + pixels_per_line) & data_mask))
 #define NORMAL_Z(p1, p2, p3)	\
-	((*(p3) & data_mask) - (*(p1) & data_mask)) / aspect_xy_to_z
+	((*(p1) & data_mask) - (*(p3) & data_mask)) / aspect_xy_to_z
 
 #define NORMALIZE_XYZ(xyz)	\
 	length = sqrt ((xyz)->nx * (xyz)->nx +\

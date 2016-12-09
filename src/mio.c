@@ -365,10 +365,14 @@ noh2d_read_image (file, x_size, y_size, slice)
 {
 	int	status;
 	int	size = x_size * y_size;
+	char	*temp_slice = NULL;
 
-	status = fread ((char *) slice, sizeof (PIXEL), size, file->stream);
+	if (temp_slice == NULL) temp_slice = malloc (sizeof(PIXEL) * size);
+	status = fread ((char *) temp_slice, sizeof (PIXEL), size, file->stream);
 #if !defined(vms) && !defined(ultrix)
-	swab ((char *) slice, (char *) slice, size * sizeof (PIXEL));
+	swab ((char *) temp_slice, (char *) slice, size * sizeof (PIXEL));
+#else
+	memcpy (slice, temp_slice, size * sizeof (PIXEL));
 #endif
 	return (status);
 }
