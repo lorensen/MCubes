@@ -6,7 +6,7 @@
 
  * module:      parser.c
 
- * version:     1.4 07/10/90 15:36:22
+ * version:     1.5 09/02/94 06:50:09
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -68,6 +68,7 @@
 #define CT9800		(strncmp (keyword, "9800",MINMATCH) == 0)
 #define CCT9800		(strncmp (keyword, "c9800",MINMATCH) == 0)
 #define FLAT		(strncmp (keyword, "flat",MINMATCH) == 0)
+#define FORMAT		(strncmp (keyword, "format",MINMATCH) == 0)
 
 /*
  * own storage:
@@ -141,6 +142,7 @@ cubes_parse_commands (command_ptr)
 	int	int_mask;
 	int	min, max;
 	int	number;
+	char	slice_format[80];
 
 	/*
 	 * keep reading file until we're done
@@ -177,6 +179,14 @@ cubes_parse_commands (command_ptr)
 
 		else if (INPUT) {
 			sscanf (line_ptr, "%s", slice_filename);
+		}
+
+		else if (FORMAT) {
+			sscanf (line_ptr, "%s", slice_format);
+			if (mio_set (slice_format) == -1) {
+				fprintf (stderr, "cubes: bad format = %s\n", slice_format);
+				exit (1);
+			}
 		}
 
 		else if (FLAT) {

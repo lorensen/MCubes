@@ -7,10 +7,11 @@ PROFILE =
 DEBUG =
 ARCH = $(TARGET_ARCH:-%=%)
 CFLAGS = -O2 $(DEBUG) $(PROFILE) $(FLOAT_OPTION)
+MIO = mio/$(ARCH)/mio.o crdidbmutil/$(ARCH)/libidbmutil.a
 OBJECTS = cubes.o cases.o options.o \
 	mask.o plane.o surface.o solid.o parser.o \
 	clip.o sphere.o octant.o gradient.o \
-	timer.o input.o mio.o
+	timer.o input.o
 
 SOURCES = $(OBJECTS:%.o=%.c) \
 	cubes.h init.h  \
@@ -26,6 +27,7 @@ all: $(SOURCES) cubes-$(ARCH) toold-$(ARCH)
 cubes-$(ARCH): $(OBJECTS:%=$(ARCH)/%)
 	$(LOAD) $(PROFILE) $(DEBUG) -o cubes-$(ARCH) \
 	$(OBJECTS:%=$(ARCH)/%) \
+	$(MIO) \
 	$(FLOAT_OPTION) -lm
 
 toold-$(ARCH): $(ARCH)/toold.o
