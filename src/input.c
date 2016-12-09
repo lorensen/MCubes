@@ -74,7 +74,7 @@ static	SLICE	slice_3 = {0, NULL};
 	 */
 	mio_read_image (slice_filename, slice_no, pixels_per_line, lines_per_slice, slice->s_ptr);
 
-	printf ("slice #%d at %x\n", slice_no, slice->s_ptr);
+	fprintf (stderr, "slice #%d at %x\n", slice_no, slice->s_ptr); fflush (stderr);
 
 	return (slice->s_ptr);
 }
