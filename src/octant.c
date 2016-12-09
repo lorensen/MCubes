@@ -6,7 +6,7 @@
 
  * module:      octant.c
 
- * version:     1.1 05/17/88 07:30:07
+ * version:     1.2 09/01/88 14:13:07
 
  * facility:	Edge Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)octant.c	1.1";
+static char    *sccs_id = "@(#)octant.c	1.2";
 #endif
 
 /*
@@ -222,27 +222,28 @@ cubes_new_octant (stype, sense, number, x, y, z, min, max)
 	switch (octant->octant_number) {
 	    case 1:
 		solid->solid_inside = cubes_octant_inside_1;
-
+		break;
 	    case 2:
 		solid->solid_inside = cubes_octant_inside_2;
-
+		break;
 	    case 3:
 		solid->solid_inside = cubes_octant_inside_3;
-
+		break;
 	    case 4:
 		solid->solid_inside = cubes_octant_inside_4;
-
+		break;
 	    case 5:
 		solid->solid_inside = cubes_octant_inside_5;
-
+		break;
 	    case 6:
 		solid->solid_inside = cubes_octant_inside_6;
-
+		break;
 	    case 7:
 		solid->solid_inside = cubes_octant_inside_7;
-
+		break;
 	    case 8:
 		solid->solid_inside = cubes_octant_inside_8;
+		break;
 	 }
 
 	/*

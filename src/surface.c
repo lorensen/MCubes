@@ -6,7 +6,7 @@
 
  * module:      surface.c
 
- * version:     1.2 08/25/88 15:37:42
+ * version:     1.3 09/01/88 14:12:42
 
  * facility:	Surface Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)surface.c	1.2";
+static char    *sccs_id = "@(#)surface.c	1.3";
 #endif
 
 /*
@@ -53,7 +53,6 @@ typedef struct {
 	p2mp1 = ((*p2 & data_mask) - (*p1 & data_mask));\
 	if (p2mp1 == 0) t = 0.0;\
 	else t = (surface->surface_value - (*p1 & data_mask)) / p2mp1;\
-	if (t < 0.0 || t > 1.0) printf ("bad t = %f\n", t);\
 	if (t < 0.0) t = 0.0;\
 	if (t > 1.0) t = 1.0;\
 	one_minus_t = 1.0 - t
@@ -219,7 +218,7 @@ cubes_new_surface (stype, file, value)
 
 	surface = (SURFACE *) malloc (sizeof (SURFACE));
 
-	surface->surface_value = 1.000 * value;
+	surface->surface_value = 1.0001 * value;
 
 	/*
 	 * set solid object pointer
@@ -1072,14 +1071,14 @@ LOCAL int cubes_surface_inside (surface, vertex)
 	float	fq_1, fq_2;
 	float	value;
 	float	x, y, z;
-	PIXEL	p1 = *(slice_1 + pixel);
-	PIXEL	p2 = *(slice_1 + pixel + 1);
-	PIXEL	p3 = *(slice_1 + pixel + 1 + line * pixels_per_line);
-	PIXEL	p4 = *(slice_1 + line * pixels_per_line);
-	PIXEL	p5 = *(slice_2 + pixel);
-	PIXEL	p6 = *(slice_2 + pixel + 1);
-	PIXEL	p7 = *(slice_2 + pixel + 1 + line * pixels_per_line);
-	PIXEL	p8 = *(slice_2 + line * pixels_per_line);
+	PIXEL	*p1 = slice_1 + pixel + line * pixels_per_line;
+	PIXEL	*p2 = p1 + 1;
+	PIXEL	*p3 = p2 + pixels_per_line;
+ 	PIXEL	*p4 = p1 + pixels_per_line;
+	PIXEL	*p5 = slice_2 + pixel + line * pixels_per_line;
+	PIXEL	*p6 = p5 + 1;
+	PIXEL	*p7 = p6 + pixels_per_line;
+	PIXEL	*p8 = p5 + pixels_per_line;
 
 	/*
 	 * interpolate function value at vertex and compare with surface
@@ -1090,17 +1089,17 @@ LOCAL int cubes_surface_inside (surface, vertex)
 	y = vertex->y - line;
 	z = vertex->z - slice;
 
-	fp_1 = p1 + x * (p2 - p1);
-	fp_2 = p4 + x * (p3 - p4);
-	fp_3 = p5 + x * (p6 - p5);
-	fp_4 = p8 + x * (p7 - p8);
+	fp_1 = *p1 + x * (*p2 - *p1);
+	fp_2 = *p4 + x * (*p3 - *p4);
+	fp_3 = *p5 + x * (*p6 - *p5);
+	fp_4 = *p8 + x * (*p7 - *p8);
 
 	fq_1 = fp_1 + y * (fp_2 - fp_1);
 	fq_2 = fp_3 + y * (fp_4 - fp_3);
 
 	value = fq_1 + z * (fq_2 - fq_1);
 
-	if (value > surface->surface_value) return (1);
+	if (value >= surface->surface_value) return (1);
 	return (0);
 
 } /* cubes_surface_inside */

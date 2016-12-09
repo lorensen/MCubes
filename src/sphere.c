@@ -6,7 +6,7 @@
 
  * module:      sphere.c
 
- * version:     1.3 08/25/88 15:45:36
+ * version:     1.4 09/01/88 14:13:00
 
  * facility:	Edge Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)sphere.c	1.3";
+static char    *sccs_id = "@(#)sphere.c	1.4";
 #endif
 
 /*
@@ -718,11 +718,12 @@ LOCAL VERTEX *cubes_sphere_intersect (sphere, vertex_1, vertex_2)
 	vertex->y = vertex_1->y * one_minus_t + vertex_2->y * t;
 	vertex->z = vertex_1->z * one_minus_t + vertex_2->z * t;
 
-	(*sphere->sphere_find_normal) (sphere);
+	vertex->nx = vertex_1->nx * one_minus_t + vertex_2->nx * t;
+	vertex->ny = vertex_1->ny * one_minus_t + vertex_2->ny * t;
+	vertex->nz = vertex_1->nz * one_minus_t + vertex_2->nz * t;
 
-/*	printf ("intersect: x,y,z = %f,%f,%f\n", vertex->x,
-						vertex->y,
-						vertex->z);*/
+/*	(*sphere->sphere_find_normal) (sphere);*/
+
 	return (vertex);
 
 } /* cubes_sphere_intersect */

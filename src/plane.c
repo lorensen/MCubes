@@ -6,7 +6,7 @@
 
  * module:      plane.c
 
- * version:     1.1 05/17/88 07:28:12
+ * version:     1.2 09/01/88 14:12:31
 
  * facility:	Edge Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)plane.c	1.1";
+static char    *sccs_id = "@(#)plane.c	1.2";
 #endif
 
 /*
@@ -912,15 +912,23 @@ LOCAL VERTEX *cubes_plane_intersect (plane, vertex_1, vertex_2)
     VERTEX *vertex_2;
     PLANE  *plane;
 {
+	float	x, y, z;
 	float	dx, dy, dz;
+	float	v1x = vertex_1->x;
+	float	v1y = vertex_1->y;
+	float	v1z = vertex_1->z;
+	float	v2x = vertex_2->x;
+	float	v2y = vertex_2->y;
+	float	v2z = vertex_2->z;
+	float	t;
 
 	/*
 	 * calculate delta in x, y, z
 	 */
 
-	dx = vertex_2->x - vertex_1->x;
-	dy = vertex_2->y - vertex_1->y;
-	dz = vertex_2->z - vertex_1->z;
+	dx = v2x - v1x;
+	dy = v2y - v1y;
+	dz = v2z - v1z;
 
 	/*
 	 * calculate t from the parametric representation of a line
@@ -936,22 +944,25 @@ LOCAL VERTEX *cubes_plane_intersect (plane, vertex_1, vertex_2)
 		+ plane->plane_b* dy
 		+ plane->plane_c * dz);
 
-	one_minus_t = 1.0 - t;
-
 	/*
 	 * calculate coordinates for the intersection point
 	 */
 
-	vertex->x = vertex_1->x * one_minus_t + vertex_2->x * t;
-	vertex->y = vertex_1->y * one_minus_t + vertex_2->y * t;
-	vertex->z = vertex_1->z * one_minus_t + vertex_2->z * t;
+	x = v1x + dx * t;
+	y = v1y + dy * t;
+	z = v1z + dz * t;
 
 	/*
 	 * calculate normal at intersection point
 	 */
 
-	(*plane->plane_find_normal) (plane);
+	vertex->nx = vertex_1->nx * one_minus_t + vertex_2->nx * t;
+	vertex->ny = vertex_1->ny * one_minus_t + vertex_2->ny * t;
+	vertex->nz = vertex_1->nz * one_minus_t + vertex_2->nz * t;
 
+/*	(*plane->plane_find_normal) (plane);*/
+
+	vertex->x = x; vertex->y = y; vertex->z = z;
 	return (vertex);
 
 } /* cubes_plane_intersect */

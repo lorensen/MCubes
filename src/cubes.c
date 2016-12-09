@@ -6,7 +6,7 @@
 
  * module:      cubes.c
 
- * version:     1.2 08/26/88 07:32:33
+ * version:     1.3 09/01/88 14:12:16
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -42,9 +42,6 @@
 #define OUTSIDE	0
 #define INSIDE	255
 
-#define SWAP_CUBE	save_ptr = (int *) old_cube; old_cube = new_cube; new_cube = (CUBE_EDGES *) save_ptr;
-#define SWAP_LINE	save_ptr = (int *) old_line; old_line = new_line; new_line = (LINE_EDGES *) save_ptr;
-
 #ifdef u370
 #define BLOCK_SIZE 4096
 #else
@@ -59,7 +56,7 @@ static	char	file_name[80];
 static VERTEX	output_vertex;
 static	int	number_edges = 0;
 #ifndef lint
-static	char    *sccs_id = "@(#)cubes.c	1.2";
+static	char    *sccs_id = "@(#)cubes.c	1.3";
 #endif
 static	int *save_ptr;
 static	int	file_number = 0;
@@ -87,7 +84,7 @@ main (argc, argv)
 	 * advertise a little
 	 */
 
-	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.2", "08/26/88");
+	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.3", "09/01/88");
 
 	/*
 	 * user input can come from three sources
@@ -290,7 +287,6 @@ cubes_init ()
 cubes_generate ()
 
 {
-register int    interpolation_case = 0;	/* interpolation case selector	*/
 register PIXEL *slice_0_ptr;	/* current pointer within slice i - 1	*/
 register PIXEL *slice_1_ptr;	/* current pointer within slice i	*/
 register PIXEL *slice_2_ptr;	/* current pointer within slice i + 1	*/
@@ -314,7 +310,7 @@ register PIXEL *slice_3_ptr;	/* current pointer within slice i + 2	*/
 	 * perturb value slightly to avoid degenerate cases
 	 */
 
-	value = 1.0001 * value;
+/*	value = 1.0001 * value;*/
 
 	/*
 	 * calculate aspect ratio between xy and z
@@ -335,11 +331,9 @@ register PIXEL *slice_3_ptr;	/* current pointer within slice i + 2	*/
 	 * loop through slices and make triangles
 	 */
 
-	for (slice = start_slice,
-		interpolation_case &= 3;
+	for (slice = start_slice;
 		slice < end_slice;
-		slice++,
-		interpolation_case |= 4) {
+		slice++) {
 
 		/*
 		 * get i + 2
@@ -356,11 +350,9 @@ register PIXEL *slice_3_ptr;	/* current pointer within slice i + 2	*/
 		 * march across both slices, building triangles
 		 */
 
-		for (line = start_y + 1,
-		     interpolation_case &= 5;
+		for (line = start_y;
 			line < end_y - 2;
-				line ++,
-				interpolation_case |= 2) {
+			line ++) {
 
 			/*
 			 * set slice pointers to start of line
@@ -372,15 +364,13 @@ register PIXEL *slice_3_ptr;	/* current pointer within slice i + 2	*/
 			slice_2_ptr = slice_2 + line_offset + start_x;
 			slice_3_ptr = slice_3 + line_offset + start_x;
 
-			for (pixel = start_x + 1,
-			     interpolation_case &= 6;
+			for (pixel = start_x;
 				pixel < end_x - 2;
 					pixel ++,
 	      				slice_0_ptr++,
 					slice_1_ptr++,
 					slice_2_ptr++,
-					slice_3_ptr++,
-					interpolation_case |= 1) {
+					slice_3_ptr++) {
 
 				/*
 				 * generate triangles for this cube and this case
@@ -391,19 +381,7 @@ register PIXEL *slice_3_ptr;	/* current pointer within slice i + 2	*/
 							slice_2_ptr,
 							slice_3_ptr);
 
-				/*
-				 * swap saved vertex pointers
-				 */
-
-				SWAP_CUBE;
-
 			} /* end of line */
-
-			/*
-			 * swap saved vertex pointers
-			 */
-
-			SWAP_LINE;
 
 		} /* end of slice */
 

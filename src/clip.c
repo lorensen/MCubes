@@ -6,7 +6,7 @@
 
  * module:      clip.c
 
- * version:     1.2 05/31/88 15:32:12
+ * version:     1.3 09/01/88 14:12:52
 
  * facility:
 	Marching Cubes triangle generator for sampled data
@@ -49,7 +49,7 @@ typedef struct {
  */
 
 #ifndef lint
-static	char    *sccs_id = "@(#)clip.c	1.2";
+static	char    *sccs_id = "@(#)clip.c	1.3";
 #endif
 
 LOCAL int cubes_clip_boundary ();
@@ -71,7 +71,7 @@ static int number_out;
  */
 
 extern double	sqrt ();
-
+extern int pixel, line, slice;
 /*++
  *
  * routine cubes_clip_solids (number_survivors, survivors)
@@ -120,6 +120,8 @@ cubes_clip_solids (number_survivors, survivors)
 	for (survivor = survivors;
 	     survivor < last_survivor;
 	     survivor++) {
+
+/*		survivor_print ("clippee:", survivor);*/
 
 		/*
 		 * no need to clip triangles of surfaces that are not visible
@@ -188,6 +190,8 @@ cubes_clip_solids (number_survivors, survivors)
 						&number_in, in,
 						&number_out, out);
 			
+			} /* for each clipper*/
+
 			/*
 			 * at this point, a triangle has been
 			 * clipped against a given surviving solid.
@@ -196,20 +200,17 @@ cubes_clip_solids (number_survivors, survivors)
 			 * we need to decompose it into triangles
 			 */
 
-				if (number_out > 3) {
-					cubes_breakup_poly (&number_out, out);
-				}
+			if (number_out > 3) {
+				cubes_breakup_poly (&number_out, out);
+			}
 
-				/*
-				 * save the output vertices for later
-				 */
+			/*
+			 * save the output vertices for later
+			 */
 
-				for (i = 0; i < number_out; i++) {
-					*(clipped++) = *(out + i);
-				}
-
-			} /* for each clipper*/
-
+			for (i = 0; i < number_out; i++) {
+				*(clipped++) = *(out + i);
+			}
 		} /* for each triangle */
 
 		/*
@@ -220,13 +221,13 @@ cubes_clip_solids (number_survivors, survivors)
 
 		if (clipped_something) {
 			last_clipped = clipped;
+			survivor->vertex_count = last_clipped - clipped_vertices;
 			vertex = survivor->vertices;
 			for (clipped = clipped_vertices;
 			     clipped < last_clipped; ) {
 				*(vertex++) = *(clipped++);
 			}
-
-			survivor->vertex_count = last_clipped - clipped_vertices;
+/*			survivor_print ("after clipping:", survivor);*/
 		}
 	} /* for each survivor */
 
@@ -401,5 +402,22 @@ cubes_breakup_poly (number, vertices)
 	default:
 		printf ("breakup: cannot breakup poly with %d sides\n", *number);
 		*number = 0;
+	}
+}
+
+survivor_print (text, survivor)
+    char *text;
+    SURVIVOR *survivor;
+{
+	int	i;
+
+	printf ("SURVIVOR (%s) pixel,line,slice (%d,%d,%d)\n", text, pixel, line, slice);
+	printf ("\tname: %s\n", survivor->solid->solid_name);
+	printf ("\tvertex count: %d\n", survivor->vertex_count);
+	for (i = 0; i < survivor->vertex_count; i++) {
+		printf ("\tvertex %d: (%f,%f,%f)\n", i,
+			survivor->vertices[i].x,
+			survivor->vertices[i].y,
+			survivor->vertices[i].z);
 	}
 }
