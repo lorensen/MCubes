@@ -6,7 +6,7 @@
 
  * module:      init.h
 
- * version:     1.2 03/21/89 07:13:45
+ * version:     1.3 07/10/90 15:36:02
 
  * facility:
 		Initializations for Marching Cubes externals
@@ -86,6 +86,7 @@ int     lines_per_slice = 12;
 int     number_slices = 1;
 int     start_slice = 1;	/* start=	*/
 int     end_slice = 0;
+int	increment_slice = 1;
 int     start_x = 0;
 int     end_x = -1;
 int     start_y = 0;

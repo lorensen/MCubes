@@ -6,7 +6,7 @@
 
  * module:      parser.c
 
- * version:     1.3 03/21/89 07:13:23
+ * version:     1.4 07/10/90 15:36:22
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -49,6 +49,7 @@
 #define SCALE		(strncmp (keyword, "scale",MINMATCH) == 0)
 #define START		(strncmp (keyword, "start",MINMATCH) == 0)
 #define END		(strncmp (keyword, "end",MINMATCH) == 0)
+#define INCREMENT	(strncmp (keyword, "increment",MINMATCH) == 0)
 #define VALUE		(strncmp (keyword, "value",MINMATCH) == 0)
 #define MIN		(strncmp (keyword, "minimum",MINMATCH) == 0)
 #define MAX		(strncmp (keyword, "maximum",MINMATCH) == 0)
@@ -89,6 +90,7 @@ extern float    scale_y;
 extern float    scale_z;
 extern int      start_slice;
 extern int      end_slice;
+extern int	increment_slice;
 extern int      start_x;
 extern int      end_x;
 extern int      start_y;
@@ -229,6 +231,9 @@ cubes_parse_commands (command_ptr)
 		}
 		else if (START) {
 			sscanf (line_ptr, "%d", &start_slice);
+		}
+		else if (INCREMENT) {
+			sscanf (line_ptr, "%d", &increment_slice);
 		}
 		else if (END) {
 			sscanf (line_ptr, "%d", &end_slice);

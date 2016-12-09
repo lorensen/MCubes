@@ -6,7 +6,7 @@
 
  * module:      cubes.c
 
- * version:     1.7 12/28/89 11:05:09
+ * version:     1.8 07/10/90 15:36:46
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -56,7 +56,7 @@ static	char	file_name[80];
 static VERTEX	output_vertex;
 static	int	number_edges = 0;
 #ifndef lint
-static	char    *sccs_id = "@(#)cubes.c	1.7";
+static	char    *sccs_id = "@(#)cubes.c	1.8";
 #endif
 static	int *save_ptr;
 static	int	file_number = 0;
@@ -84,7 +84,7 @@ main (argc, argv)
 	 * advertise a little
 	 */
 
-	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.7", "12/28/89");
+	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.8", "07/10/90");
 
 	/*
 	 * user input can come from three sources
@@ -322,6 +322,7 @@ register PIXEL *slice_3_ptr;	/* current pointer within slice i + 2	*/
 	if (end_y <= start_y) end_y = lines_per_slice;
 	end_y -= 2;
 
+	if (end_slice > number_slices) end_slice = number_slices;
 	if (end_slice <= start_slice) end_slice = number_slices;
 
 	/*
@@ -345,13 +346,19 @@ register PIXEL *slice_3_ptr;	/* current pointer within slice i + 2	*/
 
 	for (slice = start_slice;
 		slice < end_slice;
-		slice++) {
+		slice += increment_slice) {
 
 		/*
 		 * get i + 2
 		 */
 
 		if (slice < (number_slices - 1)) {
+			if (increment_slice != 1) {
+				slice_1 = (PIXEL *) cubes_get_slice (slice);
+				if (slice <= 1) slice_0 = slice_1;
+				else slice_0 = (PIXEL *) cubes_get_slice (slice - 1);
+				slice_2 = (PIXEL *) cubes_get_slice (slice + 1);
+			}
 			slice_3 = (PIXEL *) cubes_get_slice (slice + 2);
 		}
 		else {

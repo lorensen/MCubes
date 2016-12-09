@@ -6,11 +6,11 @@
 PROFILE = 
 DEBUG =
 ARCH = $(TARGET_ARCH:-%=%)
-CFLAGS = $(DEBUG) $(PROFILE) $(FLOAT_OPTION) -O -fsingle
+CFLAGS = -O $(DEBUG) $(PROFILE) $(FLOAT_OPTION)
 OBJECTS = cubes.o cases.o options.o \
 	mask.o plane.o surface.o solid.o parser.o \
 	clip.o sphere.o octant.o gradient.o \
-	timer.o input.o
+	timer.o input.o mio.o
 
 SOURCES = $(OBJECTS:%.o=%.c) \
 	cubes.h init.h  \
@@ -24,7 +24,7 @@ all: $(SOURCES) cubes-$(ARCH)
 cubes-$(ARCH): $(OBJECTS:%=$(ARCH)/%)
 	cc $(PROFILE) $(DEBUG) -o cubes-$(ARCH) \
 	$(OBJECTS:%=$(ARCH)/%) \
-	$(FLOAT_OPTION) /usr/lib/f68881.il -lm
+	$(FLOAT_OPTION) -lm
 
 mkcase-$(ARCH): $(ARCH)/mkcase.o
 	cc -o mkcase-$(ARCH) $(ARCH)/mkcase.o

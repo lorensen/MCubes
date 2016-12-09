@@ -52,6 +52,9 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/stat.h>
+#ifdef mips
+#include <sys/nami.h>
+#endif
 
 /*
  * Macros:
@@ -143,7 +146,9 @@ static PIXEL max_pix = 0;
 extern char *strrchr ();
 extern char *strcpy ();
 extern char *malloc ();
+#ifndef mips
 extern char *sprintf ();
+#endif
 
 /***************************************************
 	Public routines
@@ -362,7 +367,7 @@ noh2d_read_image (file, x_size, y_size, slice)
 	int	size = x_size * y_size;
 
 	status = fread ((char *) slice, sizeof (PIXEL), size, file->stream);
-#ifndef vms
+#if !defined(vms)
 	swab ((char *) slice, (char *) slice, size * sizeof (PIXEL));
 #endif
 	return (status);
@@ -377,7 +382,7 @@ noh2d_write_image (file, x_size, y_size, slice, header)
 {
 	int	size = x_size * y_size;
 
-#ifndef vms
+#if !defined(vms)
 	swab ((char *) slice, (char *) slice, size * sizeof (PIXEL));
 #endif
 	return (fwrite ((char *) slice, sizeof (PIXEL), size, file->stream));
@@ -406,7 +411,7 @@ signa_read_image (file, x_size, y_size, image)
 
 	myseek (file, (long) (28 * 512), 0);
 	status = fread ((char *) image, sizeof (PIXEL), size, file->stream);
-#ifdef vms
+#if defined(vms)
 	swab ((char *) image, (char *) image, size * sizeof (PIXEL));
 #endif
 	return (status);
@@ -420,7 +425,7 @@ signa_write_image (file, x_size, y_size, image, header)
 {
 	int	size = x_size * y_size;
 
-#ifdef vms
+#if defined(vms)
 	swab ((char *) image, (char *) image, size * sizeof (PIXEL));
 #endif
 	if (header != NULL) fwrite ((char *) header, 1, 28 * 512, file->stream);
@@ -452,7 +457,7 @@ xim_read_image (file, x_size, y_size, image)
 
 	myseek (file, (long) 512, 0);
 	status = fread (image, bytes, 1, file->stream);
-#ifndef vms
+#if !defined(vms)
 	swab ((char *) image, (char *) image, bytes);
 #endif
 	return (status);
@@ -468,7 +473,7 @@ xim_write_image (file, x_size, y_size, image, header)
 	char	header_temp[512];
 	int	size = x_size * y_size;
 
-#ifndef vms
+#if !defined(vms)
 	swab ((char *) image, (char *) image, size * sizeof (PIXEL));
 #endif
 	if (header != NULL) fwrite ((char *) header, 1, 512, file->stream);
@@ -576,7 +581,7 @@ ct9800_read_image (file, x_size, y_size, image)
 			if (data_ptr >= data_end) {
 				status = fread ((char *) data, sizeof (PIXEL), 256, file->stream);
 				if (status != 256) printf ("bad status: %d\n", status);
-#ifdef vms
+#if defined(vms)
 				swab ((char *) data, (char *) data, 256 * sizeof (PIXEL));
 #endif
 				data_ptr = data;
@@ -638,7 +643,7 @@ ct9800_write_image (file, x_size, y_size, image, header)
 		end = start + (*line * 2);
 		for (; start < end; start++, data_ptr++) {
 			if (data_ptr >= data_end) {
-#ifdef vms
+#if defined(vms)
 				swab ((char *) data, (char *) data, 256 * sizeof (PIXEL));
 #endif
 				fwrite ((char *) data, sizeof (PIXEL), 256, file->stream);
@@ -649,7 +654,7 @@ ct9800_write_image (file, x_size, y_size, image, header)
 	}
 
 	if (data_ptr != data) {
-#ifdef vms
+#if defined(vms)
 		swab ((char *) data, (char *) data, (data_ptr - data) * sizeof (PIXEL));
 #endif
 		fwrite ((char *) data, sizeof (PIXEL), data_ptr - data, file->stream);
@@ -676,7 +681,7 @@ static short *ct9800_build_line_table (file, size)
 		perror ("ct9800_build_line_table");
 		return ((short *) NULL);
 	}
-#ifdef vms
+#if defined(vms)
 	swab ((char *) map, (char *) map, size * sizeof (short));
 #endif
 
@@ -714,7 +719,11 @@ static MYFILE *myopen (file, mode)
 		/* open for read or write */
 
 		if (strcmp (mode, "r") == 0) {
+#ifndef mips
 			sprintf (command, "/usr/ucb/zcat %s", compressed);
+#else
+			sprintf (command, "/usr/bsd/zcat %s", compressed);
+#endif
 			stream = popen (command, "r");
 			if (stream == NULL) {
 				free (file_ptr);
@@ -726,7 +735,11 @@ static MYFILE *myopen (file, mode)
 		else if (strcmp (mode, "r+") == 0 ||
 			 strcmp (mode, "w") == 0) {
 			temp_name = tempnam (".", "C_");
+#ifndef mips
 			sprintf (command, "cat >%s; /usr/ucb/compress -f %s; mv %s.Z %s", temp_name, temp_name, temp_name, compressed);
+#else
+			sprintf (command, "cat >%s; /usr/bsd/compress -f %s; mv %s.Z %s", temp_name, temp_name, temp_name, compressed);
+#endif
 			free (temp_name);
 			stream = popen (command, "w");
 			if (stream == NULL) {
