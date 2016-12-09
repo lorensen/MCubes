@@ -6,7 +6,7 @@
 
  * module:      surface.c
 
- * version:     1.8 03/01/89 09:29:59
+ * version:     1.9 04/30/91 08:40:33
 
  * facility:	Surface Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)surface.c	1.8";
+static char    *sccs_id = "@(#)surface.c	1.9";
 #endif
 
 /*
@@ -182,7 +182,7 @@ cubes_new_surface (stype, file, value)
 
 	surface = (SURFACE *) malloc (sizeof (SURFACE));
 
-	surface->surface_value = 1.000 * value;
+	surface->surface_value = 1.001 * value;
 
 	/*
 	 * set solid object pointer
@@ -873,7 +873,7 @@ register PIXEL *slice_1;
 register PIXEL *slice_2;
 {
 register int	index;
-register PIXEL	value = surface->surface_value;
+register float	value = surface->surface_value;
 register int next_pixel = 1;
 register int next_line = pixels_per_line;
 register PIXEL	p;
