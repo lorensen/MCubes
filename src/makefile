@@ -6,7 +6,7 @@
 PROFILE = 
 DEBUG =
 ARCH = $(TARGET_ARCH:-%=%)
-CFLAGS = -O $(DEBUG) $(PROFILE) $(FLOAT_OPTION)
+CFLAGS = -O2 $(DEBUG) $(PROFILE) $(FLOAT_OPTION)
 OBJECTS = cubes.o cases.o options.o \
 	mask.o plane.o surface.o solid.o parser.o \
 	clip.o sphere.o octant.o gradient.o \
@@ -19,12 +19,15 @@ SOURCES = $(OBJECTS:%.o=%.c) \
 .INIT:
 	-mkdir $(ARCH)
 
-all: $(SOURCES) cubes-$(ARCH)
+all: $(SOURCES) cubes-$(ARCH) toold-$(ARCH)
 
 cubes-$(ARCH): $(OBJECTS:%=$(ARCH)/%)
 	cc $(PROFILE) $(DEBUG) -o cubes-$(ARCH) \
 	$(OBJECTS:%=$(ARCH)/%) \
 	$(FLOAT_OPTION) -lm
+
+toold-$(ARCH): $(ARCH)/toold.o
+	cc -o toold-$(ARCH) $(ARCH)/toold.o
 
 mkcase-$(ARCH): $(ARCH)/mkcase.o
 	cc -o mkcase-$(ARCH) $(ARCH)/mkcase.o
