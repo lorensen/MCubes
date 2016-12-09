@@ -6,7 +6,7 @@
 
  * module:      cubes.c
 
- * version:     1.5 03/21/89 07:11:45
+ * version:     1.6 04/26/89 07:44:48
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -56,7 +56,7 @@ static	char	file_name[80];
 static VERTEX	output_vertex;
 static	int	number_edges = 0;
 #ifndef lint
-static	char    *sccs_id = "@(#)cubes.c	1.5";
+static	char    *sccs_id = "@(#)cubes.c	1.6";
 #endif
 static	int *save_ptr;
 static	int	file_number = 0;
@@ -84,7 +84,7 @@ main (argc, argv)
 	 * advertise a little
 	 */
 
-	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.5", "03/21/89");
+	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.6", "04/26/89");
 
 	/*
 	 * user input can come from three sources
@@ -151,6 +151,11 @@ main (argc, argv)
 
 	cubes_summary ();
 
+	/*
+	 * close vertex file
+	 */
+
+	fclose (vertex_file);
 }
 
 

@@ -790,7 +790,7 @@ static short *ct8800_build_line_table (file_name, resolution)
 	for (i = yhigh; i > 0; i--) {
 		j = 160 - i;
 		
-		*(map + j) = xhigh * sqrt (1.0 - pow (((float) i - .5) / (float) yhigh), 2.0) + .5;
+		*(map + j) = xhigh * sqrt (1.0 - pow ((((float) i - .5) / (float) yhigh), 2.0)) + .5;
 	}
 
 	/*
