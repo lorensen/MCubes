@@ -6,7 +6,7 @@
 
  * module:      cubes.c
 
- * version:     1.11 12/05/93 13:45:04
+ * version:     1.12 12/12/94 07:02:36
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -32,6 +32,7 @@
  */
 
 #include <stdio.h>
+#include <sys/param.h>
 #include "cubes.h"
 #include "init.h"
 
@@ -52,11 +53,11 @@
  * own storage:
  */
 
-static	char	file_name[80];
+static	char	file_name[MAXPATHLEN];
 static VERTEX	output_vertex;
 static	int	number_edges = 0;
 #ifndef lint
-static	char    *sccs_id = "@(#)cubes.c	1.11";
+static	char    *sccs_id = "@(#)cubes.c	1.12";
 #endif
 static	int *save_ptr;
 static	int	file_number = 0;
@@ -84,7 +85,7 @@ main (argc, argv)
 	 * advertise a little
 	 */
 
-	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.11", "12/05/93");
+	fprintf (stderr, "\nC U B E S - Marching Cubes Method for 3D Surface Construction v%s %s\n", "1.12", "12/12/94");
 
 	/*
 	 * user input can come from three sources
@@ -789,7 +790,7 @@ cubes_summary ()
 	int	total_pixels;
 	float	cpu_time;
 	FILE	*summary_ptr;
-	char	summary_file[80];
+	char	summary_file[MAXPATHLEN];
 
 	timer_get_cpu (&cpu_time);
 
@@ -830,7 +831,7 @@ cubes_histogram ()
 {
 	int	i;
 	FILE	*histogram_ptr;
-	char	histogram_file[80];
+	char	histogram_file[MAXPATHLEN];
 
 	/* open histogram file */
 

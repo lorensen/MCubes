@@ -9,7 +9,7 @@ CFLAGS = -O2 $(DEBUG) $(PROFILE) $(FLOAT_OPTION)
 
 LIBS-sun4-solaris = -lc -lnsl -lsocket -lucb -lm
 LIBS = $(LIBS-$(ARCH))
-MIO = mio/$(ARCH)/mio.o crdidbmutil/$(ARCH)/libidbmutil.a
+MIO = ../mio/$(ARCH)/mio.o ../crdidbmutil/$(ARCH)/libidbmutil.a
 OBJECTS = cubes.o cases.o options.o \
 	mask.o plane.o surface.o solid.o parser.o \
 	clip.o sphere.o octant.o gradient.o \
@@ -24,7 +24,7 @@ LOAD = $(CC)
 .INIT:
 	-mkdir $(ARCH)
 
-all: $(SOURCES) cubes-$(ARCH) toold-$(ARCH)
+all: .INIT $(SOURCES) cubes-$(ARCH) toold-$(ARCH)
 
 cubes-$(ARCH): $(OBJECTS:%=$(ARCH)/%)
 	$(LOAD) $(PROFILE) $(DEBUG) -o cubes-$(ARCH) \

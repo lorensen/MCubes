@@ -6,7 +6,7 @@
 
  * module:      parser.c
 
- * version:     1.5 09/02/94 06:50:09
+ * version:     1.6 12/12/94 07:01:44
 
  * facility:
 		Marching Cubes triangle generator for sampled data
@@ -31,6 +31,7 @@
  */
 
 #include <stdio.h>
+#include <sys/param.h>
 #include "cubes.h"
 
 
@@ -131,12 +132,12 @@ cubes_parse_commands (command_ptr)
 
     FILE *command_ptr;
 {
-#define MAX_LINE	255
-	char	file[80];
+#define MAX_LINE	(MAXPATHLEN + 80)
+	char	file[MAXPATHLEN];
 	char	keyword[80];
 	char	line[MAX_LINE];
 	char	*line_ptr;
-	char	name[80];
+	char	name[MAXPATHLEN];
 	float	nx, ny, nz;
 	float	x, y, z;
 	int	int_mask;

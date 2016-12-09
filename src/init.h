@@ -6,7 +6,7 @@
 
  * module:      init.h
 
- * version:     1.4 02/18/92 08:21:45
+ * version:     1.5 12/12/94 07:02:07
 
  * facility:
 		Initializations for Marching Cubes externals
@@ -72,9 +72,9 @@ static float z_max = -1.e30;
  * command line and command file options:
  */
 
-char	command_file[80] = {'\0'};/* -command=	*/
-char    output_prefix[80];	/* -output=	*/
-char    slice_filename[80];	/* -input=	*/
+char	command_file[MAXPATHLEN] = {'\0'};/* -command=	*/
+char    output_prefix[MAXPATHLEN];	/* -output=	*/
+char    slice_filename[MAXPATHLEN];	/* -input=	*/
 float   value = .5;		/* -value=	*/
 PIXEL	mask = 0;		/* -mask=	*/
 float   scale_x = 1.0;		/* -scale=	*/
