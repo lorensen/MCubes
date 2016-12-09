@@ -6,7 +6,7 @@
 
  * module:      sphere.c
 
- * version:     1.2 05/31/88 15:32:28
+ * version:     1.3 08/25/88 15:45:36
 
  * facility:	Edge Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)sphere.c	1.2";
+static char    *sccs_id = "@(#)sphere.c	1.3";
 #endif
 
 /*
@@ -704,8 +704,8 @@ LOCAL VERTEX *cubes_sphere_intersect (sphere, vertex_1, vertex_2)
 	}
 	else {
 		disc = sqrt (disc);
-		t = (-b + disc) / a;
-		if (t < 0.0 || t > 1.0) t = (-b - disc) / a;
+		t = (-b + disc) / (2.0 * a);
+		if (t < 0.0 || t > 1.0) t = (-b - disc) / (2.0 * a);
 	}
 
 	one_minus_t = 1.0 - t;

@@ -6,7 +6,7 @@
 
  * module:      cubes.h
 
- * version:     1.1 05/17/88 07:32:34
+ * version:     1.2 08/25/88 15:39:16
 
  * facility:
 		Marching Cubes

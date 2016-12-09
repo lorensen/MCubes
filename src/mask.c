@@ -6,7 +6,7 @@
 
  * module:      mask.c
 
- * version:     1.1 05/17/88 07:28:05
+ * version:     1.2 08/25/88 15:37:13
 
  * facility:	Marching Cubes triangle generator for sampled data
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)mask.c	1.1";
+static char    *sccs_id = "@(#)mask.c	1.2";
 #endif
 
 /*
@@ -43,6 +43,8 @@ static char    *sccs_id = "@(#)mask.c	1.1";
 
 typedef struct {
 	PIXEL	mask_mask;
+	int	in;
+	int	out;
 } MASK;
 
 /*
@@ -104,13 +106,13 @@ extern int pixels_per_line;
 
 /*++
  *
- * routine cubes_new_mask (name, file, pixel_mask)
+ * routine cubes_new_mask (name, sense, pixel_mask)
 
  * functional description:
 	creates a new mask surface
  * formal parameters:
 	name - name of solid
-	file - file to store output
+	sense - inside or outside
 	pixel_mask - pixel mask for this solid
 
  * implicit inputs:
@@ -124,9 +126,9 @@ extern int pixels_per_line;
  *
  */
 
-cubes_new_mask (name, file, pixel_mask)
+cubes_new_mask (name, sense, pixel_mask)
     char *name;
-    char *file;
+    char *sense;
     PIXEL pixel_mask;
 {
 	SOLID	*solid;
@@ -136,7 +138,7 @@ cubes_new_mask (name, file, pixel_mask)
 	 * create new solid
 	 */
 
-	solid = (SOLID *) cubes_new_solid (name, file);
+	solid = (SOLID *) cubes_new_solid (name, "mask");
 
 	/*
 	 * add mask specific stuff
@@ -176,6 +178,16 @@ cubes_new_mask (name, file, pixel_mask)
 
 	solid->solid_visible = 0;
 
+	/*
+	 * set inside / outside
+	 */
+
+	mask->in = 255;
+	mask->out = 0;
+	if (strncmp (sense, "outside", 4) == 0) {
+		mask->in = 0;
+		mask->out = 255;
+	}
 }
 
 
@@ -523,30 +535,11 @@ register int mask_index;
 	 * set local variables to corners of cubes
 	 */
 
-/*
-	p8 = *(slice_2 + next_line);
-	p7 = *(slice_2 + next_line + next_pixel);
-	p6 = *(slice_2 + next_pixel);
-	p5 = *slice_2 ;
-	p4 = *(slice_1 + next_line);
-	p3 = *(slice_1 + next_line + next_pixel);
-	p2 = *(slice_1 + next_pixel);
-*/
 	p1 = *slice_1 ;
 
 	pixel_mask = mask->mask_mask;
-	mask_index = 0;
-/*
-	if (p8 & pixel_mask) mask_index += 128;
-	if (p7 & pixel_mask) mask_index += 64;
-	if (p6 & pixel_mask) mask_index += 32;
-	if (p5 & pixel_mask) mask_index += 16;
-	if (p4 & pixel_mask) mask_index += 8;
-	if (p3 & pixel_mask) mask_index += 4;
-	if (p2 & pixel_mask) mask_index += 2;
-	if (p1 & pixel_mask) mask_index += 1;
-*/
-	if (p1 & pixel_mask) mask_index = 255;
+	mask_index = mask->out;
+	if (p1 & pixel_mask) mask_index = mask->in;
 
 	return (mask_index);
 }

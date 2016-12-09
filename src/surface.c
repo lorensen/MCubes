@@ -6,7 +6,7 @@
 
  * module:      surface.c
 
- * version:     1.1 05/17/88 07:28:20
+ * version:     1.2 08/25/88 15:37:42
 
  * facility:	Surface Interpolator for Marching Cubes
 
@@ -27,7 +27,7 @@
  */
 
 #ifndef lint
-static char    *sccs_id = "@(#)surface.c	1.1";
+static char    *sccs_id = "@(#)surface.c	1.2";
 #endif
 
 /*
@@ -1026,7 +1026,7 @@ register PIXEL *slice_1;
 register PIXEL *slice_2;
 {
 register int	index;
-register int	value = surface->surface_value;
+register PIXEL	value = surface->surface_value;
 	int next_pixel = 1;
 	int next_line = pixels_per_line;
 register PIXEL	p;
@@ -1037,22 +1037,29 @@ register PIXEL	p;
 
 	index = 0;
 
-	p = *(slice_2 + next_line) & data_mask;
-	if (p >= value) index |= 128;	/* 8 */
-	p = *(slice_2 + next_line + next_pixel) & data_mask;
-	if (p >= value) index |= 64;	/* 7 */
-	p = *(slice_2 + next_pixel) & data_mask;
-	if (p >= value) index |= 32;	/* 6 */
-	p = *slice_2 & data_mask;
-	if (p >= value) index |= 16;	/* 5 */
-	p = *(slice_1 + next_line) & data_mask;
-	if (p >= value) index |= 8;	/* 4 */
-	p = *(slice_1 + next_line + next_pixel) & data_mask;
-	if (p >= value) index |= 4;	/* 3 */
+	p = (*slice_1 & data_mask);
+	if (p >= value) index |= 1;	/* 1 */
+
 	p = *(slice_1 + next_pixel) & data_mask;
 	if (p >= value) index |= 2;	/* 2 */
-	p = *slice_1 & data_mask;
-	if (p >= value) index |= 1;	/* 1 */
+
+	p = *(slice_1 + next_line + next_pixel) & data_mask;
+	if (p >= value) index |= 4;	/* 3 */
+
+	p = *(slice_1 + next_line) & data_mask;
+	if (p >= value) index |= 8;	/* 4 */
+
+	p = *slice_2 & data_mask;
+	if (p >= value) index |= 16;	/* 5 */
+
+	p = *(slice_2 + next_pixel) & data_mask;
+	if (p >= value) index |= 32;	/* 6 */
+
+	p = *(slice_2 + next_line + next_pixel) & data_mask;
+	if (p >= value) index |= 64;	/* 7 */
+
+	p = *(slice_2 + next_line) & data_mask;
+	if (p >= value) index |= 128;	/* 8 */
 
 	return (index);
 }
